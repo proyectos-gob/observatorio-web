@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F8F6F1">
+<meta name="description" content="Observatorio Económico del Estado de Quintana Roo — indicadores oficiales de PIB, producción, empleo y actividad municipal.">
+<title>Observatorio Económico · Quintana Roo</title>
+<link rel="icon" href="assets/isotipo-qroo.png">
+<link rel="apple-touch-icon" href="assets/isotipo-qroo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   OBSERVATORIO ECONÓMICO · QUINTANA ROO
+   Una sola base responsiva: escritorio (menú lateral) y móvil
+   (barra inferior flotante). Sin dependencias ni build step.
+   Los datos viven en el objeto DATA del script al final.
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --guinda:#9F2241; --guinda-claro:#B23B58; --guinda-oscuro:#7A1B33;
+  --ambar:#E0824A; --oro:#E8C97A;
+  --tinta:#0A0A0A; --grafito:#1A1A1C; --gris:#5E6168; --gris-2:#6E6252;
+  --crema:#EDE8DC; --papel:#F8F6F1; --verde:#17724C; --rojo:#A63B33;
+  --vidrio:rgba(255,255,255,.62); --vidrio-borde:rgba(255,255,255,.85);
+  --sombra:0 24px 60px -38px rgba(20,16,8,.22);
+  --radio:20px;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0;min-height:100vh;background:var(--crema);color:var(--tinta);
+  font-family:'Schibsted Grotesk',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;font-feature-settings:'tnum' 1,'lnum' 1;
+}
+a{color:var(--guinda);text-decoration:none;}
+a:hover{color:var(--guinda-oscuro);}
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:0;height:0;}
+*{scrollbar-width:none;}
+:focus-visible{outline:2px solid var(--guinda);outline-offset:2px;border-radius:6px;}
+
+/* ── Lienzo ── */
+.app{position:relative;display:flex;min-height:100vh;
+  background:radial-gradient(125% 80% at 50% -8%,#FEFDFB 0%,var(--papel) 46%,var(--crema) 100%);}
+.blobs{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+.blobs i{position:absolute;display:block;border-radius:50%;}
+.b1{top:-12%;left:-10%;width:44%;height:54%;background:radial-gradient(circle,rgba(159,34,65,.12),transparent 62%);}
+.b2{bottom:-18%;right:6%;width:52%;height:56%;background:radial-gradient(circle,rgba(224,130,74,.16),transparent 62%);}
+.b3{top:26%;right:-8%;width:34%;height:44%;background:radial-gradient(circle,rgba(232,201,122,.18),transparent 64%);}
+
+/* ── Menú lateral (escritorio) ── */
+.side{position:sticky;top:0;align-self:flex-start;z-index:5;flex:none;
+  width:286px;height:100vh;display:flex;flex-direction:column;overflow:hidden;
+  background:rgba(255,255,255,.55);
+  backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);
+  border-right:1px solid var(--vidrio-borde);
+  box-shadow:0 30px 80px -50px rgba(20,16,8,.4);
+  transition:width .34s cubic-bezier(.34,1.2,.64,1);}
+.side.col{width:84px;}
+.side .top{position:relative;display:flex;align-items:center;gap:14px;padding:22px 20px 18px;min-height:92px;}
+.side .logo{height:34px;max-width:96px;object-fit:contain;flex:none;}
+.side .iso{width:40px;height:40px;flex:none;border-radius:13px;display:none;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.75);border:1px solid rgba(159,34,65,.14);
+  box-shadow:0 12px 26px -18px rgba(159,34,65,.5);transition:transform .12s ease;}
+.side .iso img{width:26px;height:26px;object-fit:contain;}
+.side .iso:active{transform:scale(.94);}
+.side.col .logo,.side.col .name,.side.col .lbl,.side.col .foot .gran,.side.col .foot .est{display:none;}
+.side.col .iso{display:inline-flex;}
+.side.col .fold{display:none;}
+.name{display:flex;flex-direction:column;gap:1px;overflow:hidden;}
+.name b{font-size:15px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;}
+.name span{font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gris-2);white-space:nowrap;}
+.fold{position:absolute;top:26px;right:14px;width:28px;height:28px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;border:1px solid rgba(11,11,12,.08);
+  background:rgba(255,255,255,.9);color:var(--gris);box-shadow:0 8px 20px -12px rgba(20,16,8,.5);
+  transition:background .18s,color .18s,transform .12s;}
+.fold:hover{background:#fff;color:var(--tinta);}
+.fold:active{transform:scale(.9);}
+.side nav{display:flex;flex-direction:column;gap:3px;padding:6px 12px;}
+.side nav button{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:13px;border:none;
+  background:transparent;font-size:14.5px;font-weight:600;color:var(--gris);white-space:nowrap;overflow:hidden;
+  transition:background .22s,color .22s,box-shadow .22s;}
+.side.col nav button{justify-content:center;padding:12px 0;}
+.side nav button:hover{background:rgba(255,255,255,.7);}
+.side nav button[aria-current="page"]{background:rgba(255,255,255,.9);color:var(--guinda);
+  box-shadow:0 10px 26px -18px rgba(159,34,65,.5);}
+.side nav button svg{flex:none;}
+.side .sep{height:1px;background:rgba(11,11,12,.08);margin:10px 12px;}
+.side .foot{margin-top:auto;padding:16px 20px 22px;display:flex;flex-direction:column;gap:14px;}
+.side .foot .gran{display:flex;flex-direction:column;gap:9px;}
+.side .foot .gran > span{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gris-2);}
+.seg{display:inline-flex;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);border-radius:11px;padding:3px;}
+.seg button{border:none;background:transparent;font-size:12.5px;font-weight:600;color:var(--gris);padding:7px 14px;border-radius:8px;
+  transition:all .22s ease;}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--tinta);box-shadow:0 4px 12px -8px rgba(20,16,8,.5);}
+.side .foot .est{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--gris);white-space:nowrap;}
+.dot{flex:none;width:7px;height:7px;border-radius:50%;background:#1F8A5C;}
+
+/* ── Contenido ── */
+.shell{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px 24px;padding:30px 44px 20px;}
+.head h1{white-space:nowrap;}
+.head .eyebrow{font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gris-2);}
+.head h1{margin:5px 0 0;font-size:27px;font-weight:600;letter-spacing:-.025em;}
+.head .right{display:flex;align-items:center;gap:10px;}
+.head .sub{font-size:12.5px;color:var(--gris-2);}
+.btn-dl{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--grafito);
+  background:rgba(255,255,255,.8);border:1px solid rgba(11,11,12,.1);border-radius:999px;padding:9px 18px;
+  transition:background .18s,transform .12s;}
+.btn-dl:hover{background:#fff;}
+.btn-dl:active{transform:scale(.97);}
+main{position:relative;padding:0 44px 40px;display:flex;flex-direction:column;gap:20px;}
+.view{display:none;flex-direction:column;gap:20px;}
+.view.on{display:flex;animation:fade .42s cubic-bezier(.22,1,.36,1) both;}
+footer{position:relative;display:flex;justify-content:space-between;align-items:center;gap:20px;
+  padding:8px 44px 30px;font-size:12.5px;color:var(--gris-2);margin-top:auto;}
+
+/* ── Tarjetas ── */
+.card{background:var(--vidrio);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid var(--vidrio-borde);border-radius:var(--radio);box-shadow:var(--sombra);padding:26px 30px;}
+.card h2{margin:0;font-size:15px;font-weight:600;}
+.card h2 small{font-size:12.5px;font-weight:500;color:var(--gris);margin-left:8px;}
+.card .meta{font-size:12.5px;color:var(--gris);}
+.card .hd{display:flex;justify-content:space-between;align-items:baseline;gap:14px;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;}
+.kpi .n{font-size:34px;font-weight:600;letter-spacing:-.025em;line-height:1;white-space:nowrap;}
+.kpi .n small{font-size:.55em;font-weight:500;color:var(--gris);}
+.kpi .k{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--gris);margin-top:13px;}
+.kpi .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.pill-up{font-size:12px;font-weight:600;color:var(--verde);background:rgba(31,138,92,.12);border-radius:999px;padding:4px 10px;white-space:nowrap;}
+.hero{position:relative;overflow:hidden;border-radius:var(--radio);color:#fff;padding:26px 30px;
+  background:linear-gradient(140deg,var(--guinda-claro) 0%,var(--guinda) 55%,var(--guinda-oscuro) 100%);
+  box-shadow:0 22px 44px -20px rgba(159,34,65,.6);}
+.hero::after{content:"";position:absolute;top:-55%;right:-25%;width:80%;height:130%;
+  background:radial-gradient(circle,rgba(255,255,255,.25),transparent 62%);pointer-events:none;}
+.hero .n{position:relative;font-size:34px;font-weight:600;letter-spacing:-.025em;line-height:1;white-space:nowrap;}
+.hero .n small{font-size:.5em;font-weight:500;color:rgba(255,255,255,.75);}
+.hero .k{position:relative;font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:13px;}
+.hero .tag{font-size:12.5px;font-weight:600;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 11px;white-space:nowrap;}
+.duo{display:grid;grid-template-columns:1.5fr 1fr;gap:20px;}
+.bars{display:flex;flex-direction:column;gap:18px;}
+.bar-row{display:flex;flex-direction:column;gap:8px;}
+.bar-row .t{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;}
+.bar-row .t b{font-weight:600;}
+.track{height:9px;border-radius:6px;background:rgba(11,11,12,.07);overflow:hidden;}
+.track i{display:block;height:100%;border-radius:6px;background:rgba(11,11,12,.3);
+  transition:width .5s cubic-bezier(.22,1,.36,1);}
+.track i.p{background:linear-gradient(90deg,var(--guinda-oscuro),var(--guinda-claro));}
+
+/* ── Gráficas ── */
+.chart{position:relative;margin-top:8px;}
+.chart svg{width:100%;display:block;}
+.axis{display:flex;justify-content:space-between;margin-top:2px;}
+.axis span{font-size:12px;color:var(--gris);}
+.cross{position:absolute;top:0;width:1px;pointer-events:none;z-index:2;opacity:0;
+  background:linear-gradient(180deg,rgba(159,34,65,.05),rgba(159,34,65,.42) 20%,rgba(159,34,65,.42) 88%,rgba(159,34,65,0));
+  transition:left .16s cubic-bezier(.22,1,.36,1),opacity .18s ease;}
+.tip{position:absolute;top:-8px;z-index:3;pointer-events:none;opacity:0;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:3px;background:#fff;
+  border:1px solid rgba(11,11,12,.08);border-radius:14px;padding:11px 16px;min-width:150px;text-align:center;
+  box-shadow:0 20px 44px -24px rgba(20,16,8,.5);
+  transition:left .16s cubic-bezier(.22,1,.36,1),opacity .18s ease;}
+.tip .y{font-size:10.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--gris-2);}
+.tip .v{font-size:20px;font-weight:600;letter-spacing:-.025em;line-height:1.1;}
+.tip .d{font-size:12.5px;font-weight:600;}
+.up{color:var(--verde);} .down{color:var(--rojo);} .flat{color:var(--gris);}
+
+/* ── Tablas ── */
+.tbl{display:flex;flex-direction:column;}
+.tr{display:grid;gap:16px;align-items:center;padding:14px 10px;border-radius:11px;
+  box-shadow:inset 0 -1px 0 rgba(11,11,12,.06);transition:background .2s,box-shadow .2s;}
+.tr.h{padding:0 10px 12px;box-shadow:inset 0 -1px 0 rgba(11,11,12,.1);}
+.tr.h span{font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--gris);}
+.tr.click{cursor:pointer;}
+.tr.click:hover{background:rgba(255,255,255,.7);}
+.tr.sel{background:rgba(159,34,65,.08);box-shadow:inset 0 0 0 1px rgba(159,34,65,.2);}
+.tr b{font-size:14px;font-weight:600;color:var(--grafito);}
+.tr span.c{font-size:14px;color:var(--gris);}
+.serie .tr{grid-template-columns:.7fr 1fr 1fr 1fr 1fr;}
+.fuentes .tr{grid-template-columns:1.4fr 1fr .8fr .8fr;}
+.ficha-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;margin:0 0 26px;}
+.ficha-stats > div{background:rgba(255,255,255,.55);border:1px solid rgba(11,11,12,.06);border-radius:15px;padding:18px 20px;}
+.ficha-stats .v{font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.1;}
+.ficha-stats .k{font-size:11.5px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--gris);margin-top:9px;}
+.ficha-stats .n{font-size:12.5px;color:var(--gris-2);margin-top:7px;}
+.prose{font-size:14px;line-height:1.65;color:var(--gris);margin:12px 0 22px;max-width:96ch;text-wrap:pretty;}
+
+/* ── Municipios ── */
+.mapa-wrap{display:grid;grid-template-columns:1.55fr 1fr;gap:22px;margin-top:20px;align-items:stretch;}
+.mapa{position:relative;border-radius:17px;overflow:hidden;border:1px solid rgba(11,11,12,.07);min-height:452px;}
+.mapa iframe{width:100%;height:100%;min-height:452px;border:none;display:block;}
+.rank{display:flex;flex-direction:column;min-width:0;}
+.rank .hd{margin-bottom:6px;}
+.rank .hd span:first-child{font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--gris);}
+.rank .reset{font-size:12.5px;font-weight:600;color:#8C877C;pointer-events:none;background:none;border:none;padding:2px 4px;transition:color .18s;}
+.rank .reset.on{color:var(--guinda);pointer-events:auto;}
+.rank .reset.on:hover{color:var(--guinda-oscuro);}
+.mrow{display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:11px;margin-bottom:2px;
+  border:none;background:transparent;width:100%;text-align:left;
+  box-shadow:inset 0 -1px 0 rgba(11,11,12,.05);transition:background .2s,opacity .2s,box-shadow .2s,transform .12s;}
+.mrow:hover{background:rgba(255,255,255,.75);}
+.mrow:active{transform:scale(.995);}
+.mrow .p{font-size:11.5px;font-weight:600;color:var(--gris);width:20px;flex:none;}
+.mrow .n{font-size:14px;font-weight:500;color:var(--grafito);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mrow .v{font-size:14px;font-weight:600;flex:none;}
+.mrow.sel{background:rgba(159,34,65,.09);box-shadow:inset 0 0 0 1px rgba(159,34,65,.22);}
+.mrow.sel .p,.mrow.sel .n,.mrow.sel .v{color:var(--guinda);font-weight:600;}
+.mrow.dim{opacity:.45;}
+.mdet{margin-top:22px;padding-top:22px;border-top:1px solid rgba(11,11,12,.08);animation:rise .3s cubic-bezier(.22,1,.36,1) both;}
+.mdet .t{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+.mdet .t b{font-size:20px;font-weight:600;letter-spacing:-.02em;}
+.mdet .t span{font-size:13px;color:var(--gris-2);}
+
+/* ── Preguntar ── */
+.ask{position:relative;min-height:min(640px,72vh);display:flex;flex-direction:column;}
+.ask .body{position:relative;flex:1;min-height:0;}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;
+  transition:opacity .32s ease,transform .46s cubic-bezier(.34,1.2,.64,1);}
+.empty.off{opacity:0;transform:translateY(-18px) scale(.97);pointer-events:none;}
+.orb{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;}
+.orb .halo{position:absolute;inset:-8%;border-radius:50%;
+  background:radial-gradient(circle,rgba(159,34,65,.16) 0%,rgba(159,34,65,0) 66%);animation:glow 6s ease-in-out infinite;}
+.orb .glass{position:relative;width:132px;height:132px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(130% 130% at 30% 22%,#fff 0%,rgba(255,255,255,.55) 42%,rgba(255,255,255,.2) 100%);
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 24px 54px -26px rgba(159,34,65,.4),inset 0 2px 10px rgba(255,255,255,.9);
+  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);
+  animation:breathe 7s ease-in-out infinite;}
+.orb .glass img{width:82px;height:82px;object-fit:contain;}
+.empty .wm{font-size:32px;font-weight:600;letter-spacing:-.03em;margin-top:14px;}
+.empty .wms{font-size:11.5px;font-weight:600;letter-spacing:.36em;text-transform:uppercase;color:var(--gris-2);margin-top:7px;}
+.empty p{font-size:15px;color:var(--gris);margin:16px 0 0;text-align:center;}
+.sugs{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:26px;max-width:780px;}
+.sugs button{font-size:14px;color:var(--grafito);background:rgba(255,255,255,.62);border:1px solid rgba(11,11,12,.1);
+  border-radius:999px;padding:12px 22px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:background .18s,transform .14s,box-shadow .18s;}
+.sugs button:hover{background:#fff;box-shadow:0 12px 28px -18px rgba(20,16,8,.4);}
+.sugs button:active{transform:scale(.97);}
+.conv{position:absolute;inset:0;display:flex;flex-direction:column;gap:24px;overflow-y:auto;padding:18px 6px 6px;
+  justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .32s ease .06s;}
+.conv.on{opacity:1;pointer-events:auto;}
+.msg-u{align-self:flex-end;max-width:74%;background:rgba(159,34,65,.1);border:1px solid rgba(159,34,65,.14);
+  border-radius:20px 20px 6px 20px;padding:13px 18px;font-size:15px;line-height:1.5;
+  animation:rise .32s cubic-bezier(.22,1,.36,1) both;}
+.msg-a{align-self:flex-start;max-width:88%;display:flex;flex-direction:column;gap:12px;
+  animation:rise .32s cubic-bezier(.22,1,.36,1) both;}
+.msg-a .line{display:flex;gap:12px;}
+.avatar{flex:none;width:26px;height:26px;border-radius:50%;margin-top:1px;position:relative;
+  display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.8);
+  border:1px solid rgba(159,34,65,.16);}
+.avatar img{width:15px;height:15px;object-fit:contain;}
+.avatar .ping{position:absolute;inset:-2px;border-radius:50%;background:rgba(159,34,65,.22);animation:ping 1.4s ease-out infinite;}
+.msg-a p{margin:0;font-size:15px;line-height:1.65;color:var(--grafito);text-wrap:pretty;}
+.chips{margin-left:38px;display:flex;gap:12px;flex-wrap:wrap;}
+.chips > div{background:rgba(255,255,255,.6);border:1px solid rgba(11,11,12,.07);border-radius:13px;padding:13px 18px;min-width:132px;}
+.chips .v{font-size:19px;font-weight:600;letter-spacing:-.02em;line-height:1;}
+.chips .k{font-size:11px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--gris);margin-top:7px;}
+.src{margin-left:38px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.src .tag{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gris-2);
+  background:rgba(159,34,65,.07);border-radius:999px;padding:5px 12px;}
+.src .go{font-size:12.5px;font-weight:600;color:var(--guinda);background:none;border:none;padding:5px 4px;}
+.src .go:hover{color:var(--guinda-oscuro);}
+.follow{margin-left:38px;display:flex;gap:10px;flex-wrap:wrap;}
+.follow button{font-size:13px;color:var(--gris);background:rgba(255,255,255,.5);border:1px solid rgba(11,11,12,.08);
+  border-radius:999px;padding:8px 16px;transition:background .18s,color .18s;}
+.follow button:hover{background:#fff;color:var(--tinta);}
+.thinking{align-self:flex-start;display:flex;align-items:center;gap:12px;}
+.thinking span{font-size:14.5px;color:var(--gris);}
+.ask .composer{position:relative;display:flex;align-items:center;gap:12px;padding:14px 0 0;}
+.ask input{flex:1;height:56px;padding:0 26px;border-radius:999px;border:1px solid rgba(11,11,12,.1);
+  background:rgba(255,255,255,.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  font-family:inherit;font-size:15px;color:var(--tinta);outline:none;
+  transition:border-color .18s,background .18s,box-shadow .18s;}
+.ask input:focus{border-color:rgba(159,34,65,.4);background:#fff;box-shadow:0 14px 34px -22px rgba(20,16,8,.4);}
+.icon-btn{flex:none;width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.62);border:1px solid rgba(11,11,12,.08);color:var(--gris);
+  transition:background .22s,color .22s,box-shadow .22s,transform .12s;}
+.icon-btn:hover{background:#fff;}
+.icon-btn:active{transform:scale(.94);}
+.icon-btn.on{background:linear-gradient(140deg,var(--guinda-claro),var(--guinda));border-color:transparent;color:#fff;
+  box-shadow:0 14px 30px -14px rgba(159,34,65,.7);}
+.disclaimer{margin:14px 0 0;text-align:center;font-size:12.5px;color:var(--gris);}
+
+/* ── Lectura ejecutiva ── */
+.brief{position:relative;overflow:hidden;display:flex;align-items:flex-start;gap:20px;
+  background:linear-gradient(112deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.55) 46%,rgba(255,251,244,.62) 100%);
+  backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);
+  border:1px solid var(--vidrio-borde);border-radius:var(--radio);padding:24px 30px 24px 26px;
+  box-shadow:var(--sombra),inset 0 1px 0 rgba(255,255,255,.7);}
+.brief::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--guinda) 18%,var(--ambar) 48%,var(--oro) 66%,transparent);
+  opacity:.85;animation:shimmer 9s ease-in-out infinite;}
+.brief .mark{position:relative;flex:none;width:46px;height:46px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  background:radial-gradient(130% 130% at 30% 22%,#fff 0%,rgba(255,255,255,.6) 44%,rgba(255,255,255,.25) 100%);
+  border:1px solid rgba(159,34,65,.16);box-shadow:0 14px 30px -18px rgba(159,34,65,.5),inset 0 1px 6px rgba(255,255,255,.9);}
+.brief .mark img{width:26px;height:26px;object-fit:contain;}
+.brief .mark::after{content:"";position:absolute;inset:-22%;border-radius:50%;
+  background:radial-gradient(circle,rgba(159,34,65,.14),transparent 66%);animation:glow 6s ease-in-out infinite;}
+.brief .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px;}
+.brief .eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gris);}
+.brief .eyebrow i{width:5px;height:5px;border-radius:50%;background:#1F8A5C;flex:none;}
+.brief p{margin:0;font-size:18.5px;line-height:1.5;letter-spacing:-.015em;color:var(--tinta);
+  text-wrap:pretty;max-width:88ch;}
+.brief p b{font-weight:600;color:var(--guinda);}
+.brief .go{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;margin-top:2px;
+  font-size:13px;font-weight:600;color:var(--guinda);background:none;border:none;padding:4px 0;
+  transition:gap .2s ease,color .18s;}
+.brief .go:hover{color:var(--guinda-oscuro);gap:11px;}
+@keyframes shimmer{0%,100%{opacity:.35;transform:translateX(-6%);}50%{opacity:.9;transform:translateX(6%);}}
+
+/* ── Filtro de periodo ── */
+.filtro{position:relative;}
+.filtro.off{display:none;}
+.btn-filtro{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--grafito);
+  background:rgba(255,255,255,.8);border:1px solid rgba(11,11,12,.1);border-radius:999px;padding:9px 16px;
+  transition:background .18s,transform .12s,box-shadow .18s;}
+.btn-filtro:hover{background:#fff;box-shadow:0 12px 28px -20px rgba(20,16,8,.5);}
+.btn-filtro:active{transform:scale(.97);}
+.btn-filtro[aria-expanded="true"]{background:#fff;border-color:rgba(159,34,65,.3);color:var(--guinda);}
+.pop{position:absolute;right:0;top:48px;z-index:60;min-width:236px;display:flex;flex-direction:column;gap:8px;
+  background:rgba(255,255,255,.86);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.95);border-radius:18px;padding:14px;
+  box-shadow:0 26px 60px -26px rgba(20,16,8,.42);
+  transform-origin:top right;animation:pop .18s ease-out both;}
+.pop[hidden]{display:none;}
+.pop-t{font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);}
+.pop-opts{display:flex;flex-direction:column;gap:2px;margin-bottom:4px;}
+.pop-opts button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;
+  border:none;background:transparent;border-radius:10px;padding:10px 12px;font-size:13.5px;color:var(--grafito);
+  text-align:left;transition:background .18s,color .18s;}
+.pop-opts button:hover{background:rgba(255,255,255,.9);}
+.pop-opts button[aria-pressed="true"]{background:rgba(159,34,65,.09);color:var(--guinda);font-weight:600;
+  box-shadow:inset 0 0 0 1px rgba(159,34,65,.2);}
+.pop-opts button small{font-size:11.5px;color:var(--gris);font-weight:500;}
+.pop-opts button[aria-pressed="true"] small{color:var(--guinda);}
+.scrim{position:fixed;inset:0;z-index:50;background:transparent;}
+.scrim[hidden]{display:none;}
+@keyframes pop{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
+
+/* ── Barra inferior (móvil) ── */
+.tabbar{display:none;}
+
+@keyframes fade{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+@keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+@keyframes draw{from{stroke-dashoffset:2600;}to{stroke-dashoffset:0;}}
+@keyframes breathe{0%,100%{transform:scale(.98);}50%{transform:scale(1.035);}}
+@keyframes glow{0%,100%{opacity:.68;transform:scale(1);}50%{opacity:1;transform:scale(1.06);}}
+@keyframes ping{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(2.1);opacity:0;}}
+
+/* ═══════════════ MÓVIL / TABLET ═══════════════ */
+@media (max-width:900px){
+  .side{display:none;}
+  .head{padding:calc(20px + env(safe-area-inset-top)) 18px 12px;align-items:center;}
+  .head h1{font-size:20px;}
+  .head .eyebrow{font-size:10px;letter-spacing:.14em;}
+  .head .sub,.btn-dl span{display:none;}
+  .btn-dl{padding:11px;border-radius:50%;}
+  .btn-filtro{padding:11px 14px;font-size:13px;}
+  .pop{position:fixed;left:14px;right:14px;top:auto;bottom:calc(96px + env(safe-area-inset-bottom));
+    min-width:0;border-radius:22px;padding:16px;transform-origin:bottom center;animation:rise .24s cubic-bezier(.22,1,.36,1) both;}
+  .pop-opts button{padding:13px 14px;font-size:14.5px;}
+  .head .brand{display:flex;align-items:center;gap:11px;}
+  .head .brand img{width:36px;height:36px;object-fit:contain;padding:6px;border-radius:12px;
+    background:rgba(255,255,255,.78);border:1px solid rgba(159,34,65,.14);box-sizing:content-box;}
+  main{padding:0 16px calc(124px + env(safe-area-inset-bottom));gap:14px;}
+  .view.on{gap:14px;}
+  .card{padding:18px;border-radius:19px;}
+  .brief{flex-direction:column;gap:14px;padding:20px 18px;border-radius:19px;}
+  .brief .mark{width:40px;height:40px;}
+  .brief .mark img{width:23px;height:23px;}
+  .brief p{font-size:16px;}
+  .card h2{font-size:13.5px;}
+  .card h2 small{display:block;margin:4px 0 0;font-size:11.5px;}
+  .hero{padding:22px;border-radius:22px;}
+  .hero .n{font-size:36px;}
+  .kpis{grid-template-columns:1fr 1fr;gap:12px;}
+  .kpi{padding:15px 16px;}
+  .kpi .n{font-size:22px;}
+  .kpi .k{font-size:10px;letter-spacing:.12em;margin-top:9px;line-height:1.35;}
+  .duo{grid-template-columns:1fr;}
+  .bar-row .t{font-size:13px;}
+  .chart svg{height:180px;}
+  .tip{min-width:120px;padding:9px 13px;top:-12px;}
+  .tip .v{font-size:15px;}
+  .tip .d{font-size:11px;}
+  .axis span{font-size:11px;}
+  .mapa-wrap{grid-template-columns:1fr;gap:14px;}
+  .mapa,.mapa iframe{min-height:300px;height:300px;}
+  .ficha-stats{grid-template-columns:1fr 1fr;gap:12px;}
+  .ficha-stats > div{padding:14px 16px;}
+  .ficha-stats .v{font-size:18px;}
+  .ficha-stats .n{display:none;}
+  .prose{font-size:13.5px;margin:10px 0 18px;}
+  /* tablas → tarjetas apiladas */
+  .serie .tr,.fuentes .tr{grid-template-columns:1fr 1fr;gap:8px 12px;padding:14px 12px;}
+  .serie .tr.h,.fuentes .tr.h{display:none;}
+  .serie .tr b{grid-column:1 / -1;font-size:15px;}
+  .fuentes .tr b{grid-column:1 / -1;}
+  .serie .tr span.c::before,.fuentes .tr span.c::before{content:attr(data-k) ": ";color:var(--gris-2);font-size:11px;
+    font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
+  .ask{min-height:calc(100vh - 260px);}
+  .orb{width:150px;height:150px;}
+  .orb .glass{width:110px;height:110px;}
+  .orb .glass img{width:66px;height:66px;}
+  .empty .wm{font-size:26px;}
+  .empty p{font-size:13.5px;}
+  .sugs{flex-direction:column;gap:9px;width:100%;}
+  .sugs button{font-size:13px;padding:14px 17px;border-radius:16px;text-align:left;}
+  .msg-u{max-width:84%;font-size:14px;}
+  .msg-a{max-width:100%;}
+  .msg-a p{font-size:14px;}
+  .chips,.src,.follow{margin-left:0;}
+  .ask input{height:50px;font-size:14.5px;padding:0 20px;}
+  .icon-btn{width:50px;height:50px;}
+  .disclaimer{font-size:11.5px;}
+  footer{flex-direction:column;align-items:flex-start;gap:6px;font-size:11.5px;
+    padding:0 18px calc(120px + env(safe-area-inset-bottom));}
+
+  /* barra flotante con frosted glass real: el contenido pasa por debajo */
+  .tabbar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;
+    display:flex;align-items:stretch;gap:2px;padding:8px 6px;border-radius:26px;
+    background:rgba(252,251,247,.68);
+    backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 20px 44px -22px rgba(20,16,8,.42),inset 0 1px 0 rgba(255,255,255,.7);}
+  .tabbar button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:6px 0 4px;border:none;background:transparent;border-radius:17px;color:var(--gris);
+    transition:color .22s,opacity .12s;}
+  .tabbar button span{font-size:10px;font-weight:600;letter-spacing:.01em;}
+  .tabbar button[aria-current="page"]{color:var(--guinda);}
+  .tabbar button:active{opacity:.55;}
+  .tabbar button svg{flex:none;}
+  .tabbar .t-fuentes{display:none;}
+}
+@media (min-width:901px){ .head .brand{display:none;} }
+@media (max-width:1150px){ .head .sub{display:none;} }
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="blobs"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+
+  <!-- ══════════ MENÚ LATERAL (escritorio) ══════════ -->
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="side" id="side">
+    <div class="top">
+      <img class="logo" src="assets/logo-qroo.png" alt="Gobierno del Estado de Quintana Roo">
+      <button class="iso" id="expand" title="Expandir menú" aria-label="Expandir menú"><img src="assets/isotipo-qroo.png" alt=""></button>
+      <div class="name"><b>Observatorio</b><span>Económico</span></div>
+      <button class="fold" id="fold" title="Contraer menú" aria-label="Contraer menú">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg>
+      </button>
+    </div>
+    <nav id="nav-desktop" aria-label="Secciones"></nav>
+    <div class="foot">
+      <div class="est"><span class="dot"></span>Datos actualizados hoy</div>
+    </div>
+  </aside>
+
+  <!-- ══════════ CONTENIDO ══════════ -->
+  <div class="shell">
+    <header class="head">
+      <div class="brand"><img src="assets/isotipo-qroo.png" alt="Quintana Roo"></div>
+      <div>
+        <div class="eyebrow">Estado de Quintana Roo</div>
+        <h1 id="titulo">Panorama económico</h1>
+      </div>
+      <div class="right">
+        <span class="sub" id="subtitulo">Indicadores clave del estado</span>
+        <div class="filtro" id="filtro">
+          <button class="btn-filtro" id="btn-filtro" aria-expanded="false" aria-haspopup="true" aria-label="Filtrar periodo">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>
+            <span id="filtro-label">2024</span>
+          </button>
+          <div class="pop" id="pop-filtro" hidden role="menu">
+            <span class="pop-t">Periodo de referencia</span>
+            <div class="pop-opts" id="pop-anios"></div>
+            <span class="pop-t">Serie del PIB</span>
+            <div class="seg" id="seg" style="align-self:flex-start">
+              <button data-g="anual" aria-pressed="true">Anual</button>
+              <button data-g="trimestral" aria-pressed="false">Trimestral</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-dl" id="descargar">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
+          <span>Descargar datos</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- PANORAMA -->
+      <section class="view on" id="v-panorama">
+        <div class="brief">
+          <span class="mark"><img src="assets/isotipo-qroo.png" alt=""></span>
+          <div class="txt">
+            <span class="eyebrow"><i></i>Lectura ejecutiva · <span id="brief-per">2024</span></span>
+            <p id="brief-txt"></p>
+            <button class="go" id="brief-go">Preguntar al observatorio <span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+
+        <div class="kpis" id="kpis-panorama"></div>
+
+        <div class="duo">
+          <div class="card">
+            <div class="hd">
+              <h2>Producto Interno Bruto <small>valores constantes 2018</small></h2>
+              <span class="meta" id="rango-serie">2003 – 2024</span>
+            </div>
+            <div class="chart" id="chart-pib"></div>
+            <span class="meta" id="fuente-pib" style="display:block;margin-top:6px">Fuente: INEGI · SCNM, valores constantes de 2018</span>
+          </div>
+          <div class="card">
+            <div class="hd"><h2>Composición del PIB</h2><span class="meta" id="comp-anio">2024</span></div>
+            <div class="bars" id="composicion" style="margin-top:20px"></div>
+            <span class="meta" style="display:block;margin-top:18px">Fuente: INEGI · SCNM 2024</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="hd"><h2>Ficha del indicador · PIB estatal</h2><span class="meta">Serie 2019 – 2024</span></div>
+          <p class="prose">El PIB de Quintana Roo es el más dependiente de servicios turísticos del país: 7 de cada 10 pesos que produce el estado se generan en actividades ligadas a la visita de turistas. Esa concentración explica tanto la caída de 21.8% en 2020 como el rebote de 13.2% en 2023, el mayor crecimiento estatal registrado en México ese año.</p>
+          <div class="ficha-stats" id="ficha"></div>
+          <div class="tbl serie" id="tabla-serie"></div>
+          <span class="meta" style="display:block;margin-top:16px">Fuente: INEGI · SCNM y ITAEE. 2024 preliminar. Per cápita estimado con proyecciones CONAPO.</span>
+        </div>
+      </section>
+
+      <!-- PRODUCCIÓN -->
+      <section class="view" id="v-produccion">
+        <div class="card">
+          <div class="hd"><h2>Variación anual del PIB estatal</h2><span class="meta">2015 – 2024</span></div>
+          <div class="chart" id="chart-var"></div>
+          <span class="meta" style="display:block;margin-top:6px">Fuente: INEGI · Sistema de Cuentas Nacionales de México</span>
+        </div>
+        <div class="card">
+          <div class="hd"><h2>Actividades con mayor peso en la economía estatal</h2><span class="meta" id="sub-anio">% del PIB · 2024</span></div>
+          <div class="bars" id="subsectores" style="margin-top:20px"></div>
+        </div>
+      </section>
+
+      <!-- EMPLEO -->
+      <section class="view" id="v-empleo">
+        <div class="kpis" id="kpis-empleo"></div>
+        <div class="card">
+          <div class="hd"><h2>Personas ocupadas <small>miles de personas</small></h2><span class="meta">2019 T1 – 2024 T3</span></div>
+          <div class="chart" id="chart-emp"></div>
+          <span class="meta" style="display:block;margin-top:6px">Fuente: INEGI · ENOE</span>
+        </div>
+      </section>
+
+      <!-- MUNICIPIOS -->
+      <section class="view" id="v-municipios">
+        <div class="card">
+          <div class="hd">
+            <h2>Actividad económica por municipio <small>toca una burbuja o un renglón</small></h2>
+            <span class="meta" id="mun-corte">DENUE · 2024</span>
+          </div>
+          <div class="mapa-wrap">
+            <div class="mapa"><iframe src="mapa-qroo.html" title="Mapa de Quintana Roo" loading="lazy"></iframe></div>
+            <div class="rank">
+              <div class="hd"><span>Ranking</span><button class="reset" id="reset-mun">Ver todo</button></div>
+              <div id="lista-mun"></div>
+            </div>
+          </div>
+          <div id="det-mun"></div>
+        </div>
+      </section>
+
+      <!-- FUENTES -->
+      <section class="view" id="v-fuentes">
+        <div class="card">
+          <div class="hd"><h2>Catálogo de fuentes oficiales</h2><span class="meta">Actualización automática</span></div>
+          <p class="prose">Cada indicador del observatorio se alimenta directo de su fuente oficial. La fecha de corte y la periodicidad se muestran siempre junto al dato.</p>
+          <div class="tbl fuentes" id="tabla-fuentes"></div>
+        </div>
+      </section>
+
+      <!-- PREGUNTAR -->
+      <section class="view" id="v-preguntar">
+        <div class="ask">
+          <div class="body">
+            <div class="empty" id="empty">
+              <div class="orb"><div class="halo"></div><div class="glass"><img src="assets/isotipo-qroo.png" alt="Quintana Roo"></div></div>
+              <div class="wm">Observatorio</div>
+              <div class="wms">Inteligencia</div>
+              <p>Pregunta lo que quieras sobre la economía de Quintana Roo.</p>
+              <div class="sugs" id="sugs"></div>
+            </div>
+            <div class="conv" id="conv"></div>
+          </div>
+          <div class="composer">
+            <input id="q" type="text" placeholder="Pregunta lo que quieras…" autocomplete="off" aria-label="Pregunta">
+            <button class="icon-btn" id="send" aria-label="Enviar">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5"></path><path d="M6 11l6-6 6 6"></path></svg>
+            </button>
+            <button class="icon-btn" id="clear" title="Nueva conversación" aria-label="Nueva conversación">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"></path><path d="M3.5 13a9 9 0 1 0 2.6-7.4L3 9"></path><path d="M12 8v4l3 2"></path></svg>
+            </button>
+          </div>
+          <p class="disclaimer">Observatorio Inteligencia es una IA y puede cometer errores. Por favor, compruebe sus respuestas.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Gobierno del Estado de Quintana Roo · Observatorio Económico</span>
+      <span>Prototipo de demostración · datos de fuentes oficiales</span>
+    </footer>
+  </div>
+
+  <nav class="tabbar" id="nav-mobile" aria-label="Secciones"></nav>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATOS — punto único de integración.
+   Sustituir estos objetos por respuestas de la API cuando
+   el backend esté disponible; el render no cambia.
+   ═══════════════════════════════════════════════════════════ */
+var DATA = {
+  secciones: [
+    ['panorama','Panorama','Panorama económico','Indicadores clave del estado','M3 12h4l3 8 4-16 3 8h4'],
+    ['produccion','Producción','Producción','PIB y actividades económicas','M4 20V10m5 10V4m5 16v-7m5 7V7'],
+    ['empleo','Empleo','Empleo','Ocupación y mercado laboral','M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.5 0a3 3 0 1 0 0-6M2.5 20v-1.5A4.5 4.5 0 0 1 7 14h4a4.5 4.5 0 0 1 4.5 4.5V20'],
+    ['municipios','Municipios','Municipios','Actividad económica por municipio','M12 21s7-6.3 7-11a7 7 0 1 0-14 0c0 4.7 7 11 7 11Z'],
+    ['fuentes','Fuentes','Fuentes','Origen y periodicidad de los datos','M4 5.5C4 4.7 4.7 4 5.5 4H19v16H5.5A1.5 1.5 0 0 1 4 18.5Z'],
+    ['preguntar','Preguntar','Preguntar','Asistente del observatorio','M12 3.5l1.85 4.9L18.5 10l-4.65 1.6L12 16.5l-1.85-4.9L5.5 10l4.65-1.6z']
+  ],
+  // [año, PIB en millones de pesos constantes de 2018]
+  pib: [[2003,180900],[2004,194900],[2005,207900],[2006,223000],[2007,238000],[2008,246000],[2009,236000],
+        [2010,249000],[2011,262000],[2012,276000],[2013,285000],[2014,300000],[2015,318000],[2016,335000],
+        [2017,352000],[2018,371000],[2019,380300],[2020,297400],[2021,334000],[2022,356700],[2023,403785],[2024,388000]],
+  // ITAEE: variación anual por trimestre 2022T1 – 2024T4
+  itaee: [9.3,6.8,3.9,2.9,13.9,10.6,8.8,7.0,0.9,-2.1,-3.4,-3.8],
+  variacion: [[2015,3.7],[2016,3.4],[2017,3.2],[2018,3.5],[2019,0.9],[2020,-21.8],[2021,12.3],[2022,6.8],[2023,13.2],[2024,-3.9]],
+  composicion: [['Servicios y turismo',72.5,1],['Industria y construcción',19.1,0],['Impuestos netos',7.4,0],['Agropecuario',1.0,0]],
+  subsectores: [['Servicios de alojamiento y preparación de alimentos',24.8],['Comercio al por menor y al por mayor',15.2],
+                ['Servicios inmobiliarios y de alquiler',11.6],['Construcción',9.4],['Transportes, correos y almacenamiento',8.1],
+                ['Actividades legislativas y gubernamentales',4.3]],
+  ficha: [['$217,090','PIB per cápita 2023','21.5% arriba del promedio nacional'],
+          ['12º','Posición por tamaño de economía','1º por crecimiento en 2023'],
+          ['47.3%','Peso del turismo directo e indirecto','Estimación con matriz insumo-producto'],
+          ['+6.2%','Variación acumulada 2019 – 2024','Ya recuperó el nivel prepandemia']],
+  serie: [['2019','380,300','+0.9%','1.4%','$223,700',1],['2020','297,400','−21.8%','1.2%','$170,900',-1],
+          ['2021','334,000','+12.3%','1.4%','$187,600',1],['2022','356,700','+6.8%','1.5%','$196,400',1],
+          ['2023','403,785','+13.2%','1.6%','$217,090',1],['2024*','388,000','−3.9%','1.5%','$204,800',-1]],
+  empleo: [['977,122','','Personas ocupadas · 2024 T3','▲ 2.9%'],['2.0','%','Tasa de desocupación','▼ 0.3 pp'],
+           ['43.8','%','Ocupación informal','▼ 1.1 pp'],['1.29','M','Población económicamente activa','']],
+  // serie trimestral de personas ocupadas (miles), 2019T1 – 2024T3
+  ocupados: [858,862,742,752,782,806,820,832,848,860,868,876,882,886,890,896,900,904,910,914,918,924,977],
+  fuentes: [['INEGI · SCNM','PIB estatal, composición sectorial','Anual','2024'],
+            ['INEGI · ITAEE','Actividad económica trimestral','Trimestral','2024 T4'],
+            ['INEGI · ENOE','Ocupación, desocupación, informalidad','Trimestral','2024 T3'],
+            ['INEGI · DENUE','Unidades económicas por municipio','Semestral','2024'],
+            ['Banco de México','Remesas e inversión extranjera','Trimestral','2024 T4']],
+  municipios: [
+    ['Benito Juárez',48120,'Cancún','412,300','38.4%','$168,900','Concentra el aeropuerto internacional con mayor tráfico turístico del país y cuatro de cada diez pesos que produce el estado. Su reto es la diversificación: 61% de su empleo formal depende de hotelería, restaurantes y comercio ligado al visitante.'],
+    ['Othón P. Blanco',17640,'Chetumal','118,400','11.2%','$92,400','Capital administrativa y frontera con Belice. Su economía es la más diversificada del estado: gobierno, comercio fronterizo y logística portuaria pesan más que el turismo, lo que la vuelve la más estable ante caídas en la llegada de visitantes.'],
+    ['Solidaridad',16980,'Playa del Carmen','172,600','18.7%','$141,200','El municipio de mayor crecimiento poblacional del país en la última década. Riviera Maya concentra la inversión hotelera más reciente y la mayor presión sobre servicios públicos e infraestructura.'],
+    ['Felipe Carrillo Puerto',5310,'Carrillo Puerto','28,900','2.1%','$34,600','Corazón de la zona maya. Economía agropecuaria y forestal con turismo comunitario incipiente; es el municipio con mayor potencial de agroindustria y el de menor PIB per cápita del estado.'],
+    ['Cozumel',5140,'San Miguel','44,800','5.3%','$118,700','Principal puerto de cruceros de México con más de 4 millones de pasajeros al año. Su economía es la más expuesta a decisiones de las navieras internacionales.'],
+    ['Tulum',4720,'Tulum','52,100','6.8%','$126,300','El de mayor crecimiento relativo: sus unidades económicas se duplicaron desde 2019. La apertura del aeropuerto internacional y el Tren Maya reconfiguran su perfil de inversión.'],
+    ['José María Morelos',3180,'J. M. Morelos','16,700','1.2%','$31,800','Municipio rural del interior con vocación agropecuaria y apicultura. Fuera de los circuitos turísticos, su desarrollo depende de infraestructura carretera y programas productivos.'],
+    ['Bacalar',2460,'Bacalar','14,300','1.4%','$48,200','Pueblo Mágico con turismo de bajo impacto en crecimiento acelerado. El equilibrio entre desarrollo y conservación de la laguna de siete colores es su principal variable económica.'],
+    ['Lázaro Cárdenas',1890,'Kantunilkín','11,200','0.9%','$29,400','Municipio agrícola del norte, colindante con Yucatán. Provee mano de obra a la zona hotelera de Cancún y Holbox sin retener el valor económico generado.'],
+    ['Isla Mujeres',1640,'Isla Mujeres','18,600','2.3%','$134,500','Alta intensidad económica en superficie mínima: el turismo de un día desde Cancún genera un PIB per cápita superior al promedio estatal con muy pocas unidades económicas.'],
+    ['Puerto Morelos',1520,'Puerto Morelos','23,900','2.8%','$121,800','El municipio más joven del estado, creado en 2016. Su parque nacional de arrecife y su vocación de turismo náutico lo posicionan como el más orientado a conservación.']
+  ],
+  // ── Datos por periodo de referencia. Sustituir por la API cuando exista. ──
+  periodos: [
+    { id:'2024', brief:'El cierre preliminar de 2024 marca una <b>contracción de 3.9%</b> tras el récord del año pasado: es la normalización del flujo turístico, no un cambio de tendencia. El empleo siguió creciendo <b>2.9%</b> y ya suma <b>977 mil personas ocupadas</b>.', label:'2024', nota:'preliminar', pib:388000, varia:-3.9, nac:'1.5', pc:'$204,800',
+      ocup:'977,122', ocupCorte:'2024 T3', des:'2.0', inf:'43.8', pea:'1.29', dOcup:'▲ 2.9%', dDes:'▼ 0.3 pp', dInf:'▼ 1.1 pp',
+      comp:[72.5,19.1,7.4,1.0], sub:[24.8,15.2,11.6,9.4,8.1,4.3], mun:1, munCorte:'DENUE · 2024' },
+    { id:'2023', brief:'Quintana Roo fue la <b>entidad que más creció del país</b> en 2023, con <b>13.2%</b> y un PIB de <b>$403,785 millones</b>. El riesgo de fondo no cambió: siete de cada diez pesos del estado nacen del turismo.', label:'2023', nota:'definitivo', pib:403785, varia:13.2, nac:'1.6', pc:'$217,090',
+      ocup:'949,600', ocupCorte:'2023 T4', des:'2.3', inf:'44.9', pea:'1.25', dOcup:'▲ 4.1%', dDes:'▼ 0.5 pp', dInf:'▼ 1.3 pp',
+      comp:[72.9,18.8,7.3,1.0], sub:[25.3,15.0,11.5,9.2,8.2,4.2], mun:0.95, munCorte:'DENUE · 2023' },
+    { id:'2022', brief:'En 2022 la economía avanzó <b>6.8%</b> y recuperó el nivel prepandemia. La ocupación informal bajó a <b>46.2%</b>, aunque sigue casi cinco puntos arriba de donde debería estar para el tamaño de la economía.', label:'2022', nota:'definitivo', pib:356700, varia:6.8, nac:'1.5', pc:'$196,400',
+      ocup:'912,400', ocupCorte:'2022 T4', des:'2.8', inf:'46.2', pea:'1.21', dOcup:'▲ 5.1%', dDes:'▼ 1.3 pp', dInf:'▼ 1.6 pp',
+      comp:[71.8,19.6,7.5,1.1], sub:[24.1,15.4,11.8,9.6,8.0,4.4], mun:0.89, munCorte:'DENUE · 2022' },
+    { id:'2021', brief:'El rebote de <b>12.3%</b> en 2021 devolvió al estado al mapa, pero con desocupación de <b>4.1%</b>: la actividad regresó antes que los empleos formales.', label:'2021', nota:'definitivo', pib:334000, varia:12.3, nac:'1.4', pc:'$187,600',
+      ocup:'868,300', ocupCorte:'2021 T4', des:'4.1', inf:'47.8', pea:'1.16', dOcup:'▲ 15.4%', dDes:'▼ 2.8 pp', dInf:'▼ 1.6 pp',
+      comp:[70.4,20.7,7.7,1.2], sub:[22.8,15.7,12.1,10.0,7.8,4.7], mun:0.84, munCorte:'DENUE · 2021' },
+    { id:'2020', brief:'El cierre de fronteras provocó la <b>caída más profunda del país</b>: <b>−21.8%</b>. Es la lectura más clara del costo de depender del visitante, con la informalidad en su punto más alto (<b>49.4%</b>).', label:'2020', nota:'año de pandemia', pib:297400, varia:-21.8, nac:'1.2', pc:'$170,900',
+      ocup:'752,100', ocupCorte:'2020 T4', des:'6.9', inf:'49.4', pea:'1.09', dOcup:'▼ 12.2%', dDes:'▲ 4.1 pp', dInf:'▲ 2.2 pp',
+      comp:[67.9,22.6,8.2,1.3], sub:[19.4,16.3,13.0,10.6,7.4,5.3], mun:0.81, munCorte:'DENUE · 2020' }
+  ],
+  sugerencias: ['¿Cómo va el PIB del estado?','¿Cuánto pesa el turismo en la economía?','¿Dónde se concentra el empleo?','¿Cómo vamos frente al resto del país?'],
+  respuestas: [
+    { k:['pib','crecimiento','crece','producto interno','economía va','economia va'],
+      t:'En 2023 el PIB de Quintana Roo cerró en $403,785 millones de pesos constantes de 2018, con un crecimiento de 13.2%: el más alto de las 32 entidades. El estado ya superó su nivel prepandemia (+6.2% acumulado desde 2019) y aporta 1.6% del PIB nacional. Para 2024 el ITAEE preliminar apunta a una contracción de 3.9% por la normalización del flujo turístico.',
+      d:[['$403,785 MDP','PIB 2023'],['+13.2%','Variación anual'],['$217,090','Per cápita']],
+      f:'INEGI · SCNM e ITAEE 2024', ir:'produccion', irL:'Ver serie completa',
+      s:['¿Por qué cayó tanto en 2020?','¿Cuánto pesa el turismo en la economía?'] },
+    { k:['2020','pandemia','cayó','cayo','caída','caida','covid'],
+      t:'En 2020 la economía estatal se contrajo 21.8%, la caída más profunda del país. La razón es estructural: 72.5% del PIB depende de servicios y turismo, y el cierre de fronteras detuvo la actividad casi por completo. La recuperación tomó tres años: +12.3% en 2021, +6.8% en 2022 y +13.2% en 2023.',
+      d:[['−21.8%','2020'],['3 años','Para recuperarse'],['72.5%','Peso de servicios']],
+      f:'INEGI · SCNM 2024', ir:'produccion', irL:'Ver variación anual',
+      s:['¿Cómo va el empleo hoy?','¿Cómo vamos frente al resto del país?'] },
+    { k:['turismo','servicio','hotel','sector','composici','actividad'],
+      t:'Servicios y turismo concentran 72.5% del PIB estatal. Solo alojamiento y preparación de alimentos representan 24.8%, casi uno de cada cuatro pesos que produce el estado; le siguen comercio (15.2%) y servicios inmobiliarios (11.6%). Sumando efectos indirectos, el turismo explica cerca de 47.3% de la economía estatal.',
+      d:[['72.5%','Servicios y turismo'],['24.8%','Alojamiento y alimentos'],['47.3%','Turismo total estimado']],
+      f:'INEGI · SCNM 2024', ir:'produccion', irL:'Ver actividades',
+      s:['¿Qué tan riesgosa es esa concentración?','¿Dónde se concentra el empleo?'] },
+    { k:['riesgo','concentr','dependen','diversific'],
+      t:'Es la economía estatal menos diversificada del país: una caída de 10% en la llegada de turistas se traduce en aproximadamente 3.4 puntos porcentuales menos de PIB estatal. Los sectores con mayor potencial de diversificación identificados son logística portuaria en Chetumal, agroindustria en la zona maya y servicios digitales en Cancún.',
+      d:[['3.4 pp','Impacto por −10% de turistas'],['1.0%','Peso agropecuario']],
+      f:'Estimación del observatorio', ir:'produccion', irL:'Ver composición',
+      s:['¿Cómo va el PIB del estado?','¿Dónde se concentra el empleo?'] },
+    { k:['empleo','ocupad','trabajo','desocupa','informal','salario'],
+      t:'Al tercer trimestre de 2024 hay 977,122 personas ocupadas, 2.9% más que un año antes, con una tasa de desocupación de 2.0% (0.3 pp menos) y ocupación informal de 43.8%. La PEA es de 1.29 millones de personas y tres de cada cuatro empleos se ubican en Benito Juárez, Solidaridad y Othón P. Blanco.',
+      d:[['977,122','Personas ocupadas'],['2.0%','Desocupación'],['43.8%','Informalidad']],
+      f:'INEGI · ENOE 2024 T3', ir:'empleo', irL:'Ver mercado laboral',
+      s:['¿Qué municipio concentra más actividad?','¿Cómo va el PIB del estado?'] },
+    { k:['municipio','benito','cancún','cancun','chetumal','tulum','cozumel','unidades','dónde','donde'],
+      t:'Benito Juárez concentra 48,120 unidades económicas, seguido de Othón P. Blanco (17,640) y Solidaridad (16,980): entre los tres agrupan más del 70% de la actividad registrada. Tulum es el de mayor crecimiento relativo con 4,720 unidades, mientras Puerto Morelos e Isla Mujeres siguen por debajo de 2,000.',
+      d:[['48,120','Benito Juárez'],['17,640','Othón P. Blanco'],['16,980','Solidaridad']],
+      f:'INEGI · DENUE 2024', ir:'municipios', irL:'Ver los 11 municipios',
+      s:['¿Cuánto pesa el turismo en la economía?','¿De dónde vienen estos datos?'] },
+    { k:['nacional','país','pais','comparaci','compara','ranking','lugar','resto'],
+      t:'Quintana Roo aporta 1.6% del PIB nacional, 0.1 puntos porcentuales más que en 2022, y ocupa el lugar 12 por tamaño de economía. Su PIB per cápita de $217,090 está 21.5% arriba del promedio nacional, y en 2023 fue la entidad que más creció del país con 13.2%.',
+      d:[['1.6%','Del PIB nacional'],['12º','Por tamaño'],['1º','Por crecimiento']],
+      f:'INEGI · SCNM 2024', ir:'panorama', irL:'Ver panorama',
+      s:['¿Qué tan riesgosa es la dependencia del turismo?','¿Cómo va el empleo hoy?'] },
+    { k:['fuente','dato','actualiz','corte','metodolog','inegi'],
+      t:'El observatorio se alimenta directo de fuentes oficiales: INEGI (SCNM anual, ITAEE trimestral, ENOE trimestral, DENUE semestral) y Banco de México. El corte más reciente es 2024 T4 para ITAEE y 2024 T3 para ENOE; cada indicador muestra su fecha de corte junto al dato.',
+      d:[], f:'Catálogo de fuentes del observatorio', ir:'fuentes', irL:'Ver catálogo',
+      s:['¿Cómo va el PIB del estado?','¿Dónde se concentra el empleo?'] }
+  ]
+};
+
+/* ═══════════════ utilidades ═══════════════ */
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var el = function (t, c, h) { var n = document.createElement(t); if (c) n.className = c; if (h != null) n.innerHTML = h; return n; };
+var mdp = function (v) { return '$' + v.toLocaleString('en-US') + ' MDP'; };
+var mx = function (v) { return v.toLocaleString('es-MX'); };
+var SVGNS = 'http://www.w3.org/2000/svg';
+
+/* ═══════════════ navegación ═══════════════ */
+var tab = 'panorama';
+function icono(d) { return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="' + d + '"></path></svg>'; }
+
+function pintarNav() {
+  var d = $('#nav-desktop'), m = $('#nav-mobile');
+  d.innerHTML = ''; m.innerHTML = '';
+  DATA.secciones.forEach(function (s, i) {
+    var b = el('button', null, icono(s[4]) + '<span class="lbl">' + s[1] + '</span>');
+    b.onclick = function () { ir(s[0]); };
+    b.dataset.t = s[0];
+    d.appendChild(b);
+    if (i === 4) d.appendChild(el('div', 'sep'));
+    var b2 = el('button', 't-' + s[0], icono(s[4]) + '<span>' + s[1] + '</span>');
+    b2.onclick = function () { ir(s[0]); };
+    b2.dataset.t = s[0];
+    m.appendChild(b2);
+  });
+}
+
+function ir(id) {
+  tab = id;
+  var s = DATA.secciones.filter(function (x) { return x[0] === id; })[0];
+  $('#titulo').textContent = s[2];
+  $('#subtitulo').textContent = s[3];
+  document.querySelectorAll('.view').forEach(function (v) { v.classList.toggle('on', v.id === 'v-' + id); });
+  document.querySelectorAll('[data-t]').forEach(function (b) {
+    if (b.dataset.t === id) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (typeof sincronizarFiltro === 'function') sincronizarFiltro();
+}
+
+/* ═══════════════ menú colapsable ═══════════════ */
+$('#fold').onclick = function () { $('#side').classList.add('col'); };
+$('#expand').onclick = function () { $('#side').classList.remove('col'); };
+
+/* ═══════════════ periodicidad ═══════════════ */
+var gran = 'anual';
+$('#seg').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  gran = b.dataset.g;
+  document.querySelectorAll('#seg button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+  $('#rango-serie').textContent = gran === 'anual' ? '2003 – 2024' : '2022 T1 – 2024 T4';
+  $('#fuente-pib').textContent = gran === 'anual'
+    ? 'Fuente: INEGI · SCNM, valores constantes de 2018'
+    : 'Fuente: INEGI · ITAEE, variación anual por trimestre';
+  chartPib();
+});
+
+/* ═══════════════ gráfica del PIB (interactiva) ═══════════════ */
+var pinIdx = null;
+function chartPib() {
+  var box = $('#chart-pib');
+  box.innerHTML = '';
+  if (gran !== 'anual') { chartItaee(box); return; }
+
+  var W = 1000, H = 380, L = 50, R = 975, T = 40, B = 340;
+  var vals = DATA.pib.map(function (p) { return p[1]; });
+  var min = Math.min.apply(null, vals) * 0.94, max = Math.max.apply(null, vals) * 1.02;
+  var X = function (i) { return L + i * (R - L) / (DATA.pib.length - 1); };
+  var Y = function (v) { return B - (v - min) / (max - min) * (B - T); };
+  var line = DATA.pib.map(function (p, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ');
+
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Serie del PIB estatal 2003-2024">'
+    + '<defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7A1B33"/><stop offset="0.72" stop-color="#9F2241"/><stop offset="1" stop-color="#E0824A"/></linearGradient>'
+    + '<linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(159,34,65,0.18)"/><stop offset="0.55" stop-color="rgba(159,34,65,0.06)"/><stop offset="1" stop-color="rgba(159,34,65,0)"/></linearGradient></defs>';
+  [B, 240, 140, T].forEach(function (y, i) {
+    svg += '<line x1="' + L + '" y1="' + y + '" x2="' + R + '" y2="' + y + '" stroke="rgba(11,11,12,' + (i === 0 ? '.12' : '.05') + ')" stroke-width="1"/>';
+  });
+  svg += '<path d="' + line + ' L' + R + ',' + B + ' L' + L + ',' + B + ' Z" fill="url(#ga)"/>';
+  svg += '<path d="' + line + '" fill="none" stroke="url(#gl)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2600" style="animation:draw 1.5s cubic-bezier(.22,1,.36,1) both"/>';
+  svg += '<circle cx="' + X(20).toFixed(1) + '" cy="' + Y(403785).toFixed(1) + '" r="6" fill="#9F2241" stroke="#fff" stroke-width="2.5"/>';
+  svg += '<circle cx="' + X(17).toFixed(1) + '" cy="' + Y(297400).toFixed(1) + '" r="4.5" fill="#fff" stroke="#6E6252" stroke-width="2"/>';
+  svg += '<circle id="dot" cx="-50" cy="-50" r="6.5" fill="#9F2241" stroke="#fff" stroke-width="2.6" opacity="0"/>';
+  svg += '<text x="' + X(17).toFixed(1) + '" y="' + (Y(297400) + 26).toFixed(1) + '" text-anchor="middle" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">2020 · −21.8%</text>';
+  svg += '</svg>';
+
+  box.innerHTML = '<div class="cross" id="cross" style="height:300px"></div>'
+    + '<div class="tip" id="tip"><span class="y"></span><span class="v"></span><span class="d"></span></div>'
+    + svg
+    + '<div class="axis"><span>2003</span><span>2013</span><span>2024</span></div>';
+
+  var svgEl = box.querySelector('svg');
+  function idxDe(clientX) {
+    var r = svgEl.getBoundingClientRect();
+    var px = (clientX - r.left) / r.width * W;
+    var i = Math.round((px - L) / ((R - L) / (DATA.pib.length - 1)));
+    return Math.max(0, Math.min(DATA.pib.length - 1, i));
+  }
+  function marcar(i) {
+    var p = DATA.pib[i], prev = i > 0 ? DATA.pib[i - 1] : null;
+    var vr = prev ? (p[1] - prev[1]) / prev[1] * 100 : null;
+    var xPct = X(i) / W * 100;
+    var cross = $('#cross', box), tip = $('#tip', box), dot = $('#dot', box);
+    cross.style.left = xPct + '%'; cross.style.opacity = 1;
+    tip.style.left = Math.min(88, Math.max(12, xPct)) + '%'; tip.style.opacity = 1;
+    $('.y', tip).textContent = p[0] + (p[0] === 2024 ? ' · preliminar' : '');
+    $('.v', tip).textContent = mdp(p[1]);
+    var d = $('.d', tip);
+    d.textContent = vr == null ? 'Inicio de la serie' : (vr >= 0 ? '▲ ' : '▼ ') + Math.abs(vr).toFixed(1) + '% vs ' + prev[0];
+    d.className = 'd ' + (vr == null ? 'flat' : vr >= 0 ? 'up' : 'down');
+    dot.setAttribute('cx', X(i).toFixed(1)); dot.setAttribute('cy', Y(p[1]).toFixed(1)); dot.setAttribute('opacity', 1);
+  }
+  function limpiar() {
+    if (pinIdx != null) { marcar(pinIdx); return; }
+    $('#cross', box).style.opacity = 0; $('#tip', box).style.opacity = 0; $('#dot', box).setAttribute('opacity', 0);
+  }
+  box.addEventListener('pointermove', function (e) { marcar(idxDe(e.clientX)); });
+  box.addEventListener('pointerdown', function (e) { marcar(idxDe(e.clientX)); });
+  box.addEventListener('pointerleave', limpiar);
+  box.__marcar = marcar; box.__limpiar = limpiar;
+  if (pinIdx != null) marcar(pinIdx);
+}
+
+function chartItaee(box) {
+  var W = 1000, H = 380, base = 200, ancho = 46, paso = 77;
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ITAEE variación anual por trimestre">'
+    + '<defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B23B58"/><stop offset="1" stop-color="#7A1B33"/></linearGradient></defs>'
+    + '<line x1="50" y1="' + base + '" x2="975" y2="' + base + '" stroke="rgba(11,11,12,.18)" stroke-width="1"/>';
+  DATA.itaee.forEach(function (v, i) {
+    var h = Math.abs(v) * 8, x = 65 + i * paso, ult = i === 7;
+    var y = v >= 0 ? base - h : base;
+    var fill = v >= 0 ? (ult ? 'url(#gb)' : 'rgba(159,34,65,.28)') : 'rgba(11,11,12,.18)';
+    svg += '<rect x="' + x + '" y="' + y.toFixed(1) + '" width="' + ancho + '" height="' + Math.max(h, 4).toFixed(1) + '" rx="6" fill="' + fill + '"/>';
+    if (ult) svg += '<text x="' + (x + ancho / 2) + '" y="' + (y - 12).toFixed(1) + '" text-anchor="middle" font-size="14" font-weight="600" fill="#9F2241" font-family="Schibsted Grotesk, sans-serif">+' + v + '%</text>';
+  });
+  ['2022', '2023', '2024'].forEach(function (a, i) {
+    svg += '<text x="' + (65 + (i * 4 + 1.5) * paso) + '" y="' + (base + 62) + '" text-anchor="middle" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">' + a + '</text>';
+  });
+  svg += '<text x="512" y="' + (base + 100) + '" text-anchor="middle" font-size="12.5" fill="#6E6252" font-family="Schibsted Grotesk, sans-serif">Variación anual del ITAEE por trimestre · 2024 preliminar</text></svg>';
+  box.innerHTML = svg;
+}
+
+/* ═══════════════ producción y empleo ═══════════════ */
+function chartVar() {
+  var W = 1000, base = 150, ancho = 60, paso = 92;
+  var svg = '<svg viewBox="0 0 ' + W + ' 300" style="height:250px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Variación anual del PIB 2015-2024">'
+    + '<defs><linearGradient id="gv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B23B58"/><stop offset="1" stop-color="#7A1B33"/></linearGradient></defs>'
+    + '<line x1="50" y1="' + base + '" x2="975" y2="' + base + '" stroke="rgba(11,11,12,.18)" stroke-width="1"/>';
+  DATA.variacion.forEach(function (d, i) {
+    var v = d[1], h = Math.abs(v) * 5, x = 62 + i * paso, best = v === 13.2;
+    var y = v >= 0 ? base - h : base;
+    var fill = v >= 0 ? (best ? 'url(#gv)' : 'rgba(159,34,65,.26)') : 'rgba(11,11,12,.16)';
+    svg += '<rect x="' + x + '" y="' + y.toFixed(1) + '" width="' + ancho + '" height="' + Math.max(h, 4).toFixed(1) + '" rx="6" fill="' + fill + '"/>';
+    if (best) svg += '<text x="' + (x + ancho / 2) + '" y="' + (y - 12) + '" text-anchor="middle" font-size="14.5" font-weight="600" fill="#9F2241" font-family="Schibsted Grotesk, sans-serif">+13.2%</text>';
+    if (v === -21.8) svg += '<text x="' + (x + ancho / 2) + '" y="' + (base + h + 26) + '" text-anchor="middle" font-size="12.5" fill="#6E6252" font-family="Schibsted Grotesk, sans-serif">−21.8% · 2020</text>';
+  });
+  [[0, '2015'], [4, '2019'], [8, '2023'], [9, '2024']].forEach(function (a) {
+    svg += '<text x="' + (62 + a[0] * paso + ancho / 2) + '" y="' + (base + (a[0] === 9 ? 42 : 22)) + '" text-anchor="middle" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">' + a[1] + '</text>';
+  });
+  svg += '</svg>';
+  $('#chart-var').innerHTML = svg;
+}
+
+function chartEmp() {
+  var W = 1000, T = 40, B = 280, L = 50, R = 975;
+  var v = DATA.ocupados, min = Math.min.apply(null, v) * 0.96, max = Math.max.apply(null, v) * 1.02;
+  var X = function (i) { return L + i * (R - L) / (v.length - 1); };
+  var Y = function (x) { return B - (x - min) / (max - min) * (B - T); };
+  var line = v.map(function (x, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(x).toFixed(1); }).join(' ');
+  var svg = '<svg viewBox="0 0 ' + W + ' 320" style="height:260px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Personas ocupadas 2019-2024">'
+    + '<defs><linearGradient id="ge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(159,34,65,0.16)"/><stop offset="1" stop-color="rgba(159,34,65,0)"/></linearGradient></defs>'
+    + '<line x1="' + L + '" y1="' + B + '" x2="' + R + '" y2="' + B + '" stroke="rgba(11,11,12,.12)"/>'
+    + '<line x1="' + L + '" y1="180" x2="' + R + '" y2="180" stroke="rgba(11,11,12,.05)"/>'
+    + '<line x1="' + L + '" y1="80" x2="' + R + '" y2="80" stroke="rgba(11,11,12,.05)"/>'
+    + '<path d="' + line + ' L' + R + ',' + B + ' L' + L + ',' + B + ' Z" fill="url(#ge)"/>'
+    + '<path d="' + line + '" fill="none" stroke="#9F2241" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2600" style="animation:draw 1.5s cubic-bezier(.22,1,.36,1) both"/>'
+    + '<circle cx="' + X(v.length - 1).toFixed(1) + '" cy="' + Y(v[v.length - 1]).toFixed(1) + '" r="6" fill="#9F2241" stroke="#fff" stroke-width="2.5"/>'
+    + '<circle cx="' + X(2).toFixed(1) + '" cy="' + Y(v[2]).toFixed(1) + '" r="4.5" fill="#fff" stroke="#6E6252" stroke-width="2"/>'
+    + '<text x="' + (X(2) + 40).toFixed(1) + '" y="' + (Y(v[2]) + 24).toFixed(1) + '" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">2020 T2 · caída por pandemia</text></svg>';
+  $('#chart-emp').innerHTML = svg + '<div class="axis"><span>2019</span><span>2022</span><span>2024 T3</span></div>';
+}
+
+/* ═══════════════ barras, ficha, tablas ═══════════════ */
+function barras(cont, filas, escala) {
+  cont.innerHTML = '';
+  filas.forEach(function (f, i) {
+    var prim = f[2] !== undefined ? f[2] : (i === 0);
+    var r = el('div', 'bar-row',
+      '<div class="t"><span style="' + (prim ? 'color:var(--grafito);font-weight:600' : 'color:var(--gris)') + '">' + f[0] + '</span><b>' + f[1].toFixed(1) + '%</b></div>'
+      + '<div class="track"><i class="' + (prim ? 'p' : '') + '" style="width:0"></i></div>');
+    cont.appendChild(r);
+    var w = Math.max(f[1] / escala * 100, 1.4);
+    requestAnimationFrame(function () { $('i', r).style.width = w + '%'; });
+  });
+}
+
+function pintarFicha() {
+  var c = $('#ficha'); c.innerHTML = '';
+  DATA.ficha.forEach(function (f) {
+    c.appendChild(el('div', null, '<div class="v">' + f[0] + '</div><div class="k">' + f[1] + '</div><div class="n">' + f[2] + '</div>'));
+  });
+}
+
+function pintarSerie() {
+  var c = $('#tabla-serie'); c.innerHTML = '';
+  c.appendChild(el('div', 'tr h', '<span>Año</span><span>PIB (MDP)</span><span>Variación</span><span>% nacional</span><span>Per cápita</span>'));
+  DATA.serie.forEach(function (s, i) {
+    var idx = 16 + i;
+    var r = el('div', 'tr click',
+      '<b>' + s[0] + '</b>'
+      + '<span class="c" data-k="PIB">' + s[1] + '</span>'
+      + '<span class="c" style="font-weight:600;color:' + (s[5] > 0 ? 'var(--verde)' : 'var(--rojo)') + '" data-k="Variación">' + s[2] + '</span>'
+      + '<span class="c" data-k="% nacional">' + s[3] + '</span>'
+      + '<span class="c" data-k="Per cápita">' + s[4] + '</span>');
+    r.dataset.anio = s[0];
+    r.onclick = function () {
+      var act = pinIdx === idx;
+      pinIdx = act ? null : idx;
+      document.querySelectorAll('#tabla-serie .tr').forEach(function (x) { x.classList.remove('sel'); });
+      if (!act) r.classList.add('sel');
+      var box = $('#chart-pib');
+      if (box.__marcar) { if (pinIdx == null) box.__limpiar(); else box.__marcar(pinIdx); }
+    };
+    c.appendChild(r);
+  });
+}
+
+function pintarFuentes() {
+  var c = $('#tabla-fuentes'); c.innerHTML = '';
+  c.appendChild(el('div', 'tr h', '<span>Fuente</span><span>Indicadores</span><span>Periodicidad</span><span>Último corte</span>'));
+  DATA.fuentes.forEach(function (f) {
+    c.appendChild(el('div', 'tr',
+      '<b style="font-size:14.5px">' + f[0] + '</b>'
+      + '<span class="c" style="font-size:13.5px" data-k="Indicadores">' + f[1] + '</span>'
+      + '<span class="c" style="font-size:13.5px" data-k="Periodicidad">' + f[2] + '</span>'
+      + '<span class="c" style="font-size:13.5px;font-weight:600;color:var(--verde)" data-k="Corte">' + f[3] + '</span>'));
+  });
+}
+
+
+/* ═══════════════ municipios + mapa ═══════════════ */
+var munSel = null;
+function mapaFrame() { var f = $('.mapa iframe'); return f && f.contentWindow ? f.contentWindow : null; }
+function avisarMapa(n) {
+  var w = mapaFrame(); if (!w) return;
+  w.postMessage(n ? { type: 'oq-select', municipio: n } : { type: 'oq-reset' }, '*');
+}
+function pintarMunicipios() {
+  var c = $('#lista-mun'); c.innerHTML = '';
+  DATA.municipios.forEach(function (m, i) {
+    var b = el('button', 'mrow',
+      '<span class="p">' + String(i + 1).padStart(2, '0') + '</span>'
+      + '<span class="n">' + m[0] + '</span>'
+      + '<span class="v">' + mx(Math.round(m[1] * periodo.mun)) + '</span>');
+    b.onclick = function () { seleccionar(munSel === m[0] ? null : m[0], true); };
+    b.dataset.m = m[0];
+    c.appendChild(b);
+  });
+  $('#reset-mun').onclick = function () { seleccionar(null, true); };
+}
+function seleccionar(n, avisar) {
+  munSel = n;
+  document.querySelectorAll('.mrow').forEach(function (r) {
+    r.classList.toggle('sel', r.dataset.m === n);
+    r.classList.toggle('dim', !!n && r.dataset.m !== n);
+  });
+  $('#reset-mun').classList.toggle('on', !!n);
+  var d = $('#det-mun');
+  var m = n ? DATA.municipios.filter(function (x) { return x[0] === n; })[0] : null;
+  if (!m) { d.innerHTML = ''; }
+  else {
+    d.innerHTML = '<div class="mdet"><div class="t"><b>' + m[0] + '</b><span>Cabecera: ' + m[2] + '</span></div>'
+      + '<div class="ficha-stats" style="margin:16px 0 0">'
+      + '<div><div class="v">' + mx(Math.round(m[1] * periodo.mun)) + '</div><div class="k">Unidades económicas</div></div>'
+      + '<div><div class="v">' + m[3] + '</div><div class="k">Personas ocupadas</div></div>'
+      + '<div><div class="v">' + m[4] + '</div><div class="k">Del PIB estatal</div></div>'
+      + '<div><div class="v">' + m[5] + '</div><div class="k">PIB per cápita</div></div></div>'
+      + '<p class="prose" style="margin:16px 0 0">' + m[6] + '</p></div>';
+  }
+  if (avisar) avisarMapa(n);
+}
+window.addEventListener('message', function (e) {
+  if (e.data && e.data.type === 'oq-municipio') seleccionar(e.data.municipio || null, false);
+});
+
+/* ═══════════════ asistente ═══════════════ */
+var msgs = [], pensando = false, timer = null;
+function responder(q) {
+  var s = q.toLowerCase();
+  var hit = DATA.respuestas.filter(function (r) {
+    return r.k.some(function (k) { return s.indexOf(k) >= 0; });
+  })[0];
+  return hit || { t: 'Con la información cargada en el observatorio puedo responder sobre PIB y crecimiento, composición sectorial, empleo, actividad por municipio y el origen de los datos. Prueba con algo como «¿cuánto pesa el turismo en la economía?».', d: [], f: '', s: ['¿Cómo va el PIB del estado?', '¿Dónde se concentra el empleo?'] };
+}
+function enviar(q) {
+  var t = (q || '').trim(); if (!t || pensando) return;
+  clearTimeout(timer);
+  msgs.push({ u: 1, t: t });
+  pensando = true; $('#q').value = ''; sync(); pintarConv();
+  timer = setTimeout(function () {
+    var r = responder(t);
+    pensando = false;
+    msgs.push({ u: 0, t: r.t, d: r.d, f: r.f, ir: r.ir, irL: r.irL, s: r.s });
+    pintarConv();
+  }, 1500);
+}
+function pintarConv() {
+  var c = $('#conv'), on = msgs.length > 0 || pensando;
+  $('#empty').classList.toggle('off', on);
+  c.classList.toggle('on', on);
+  c.innerHTML = '';
+  msgs.forEach(function (m) {
+    if (m.u) { c.appendChild(el('div', 'msg-u', m.t)); return; }
+    var w = el('div', 'msg-a');
+    w.appendChild(el('div', 'line', '<span class="avatar"><img src="assets/isotipo-qroo.png" alt=""></span><p>' + m.t + '</p>'));
+    if (m.d && m.d.length) {
+      var ch = el('div', 'chips');
+      m.d.forEach(function (d) { ch.appendChild(el('div', null, '<div class="v">' + d[0] + '</div><div class="k">' + d[1] + '</div>')); });
+      w.appendChild(ch);
+    }
+    if (m.f || m.ir) {
+      var s = el('div', 'src', m.f ? '<span class="tag">' + m.f + '</span>' : '');
+      if (m.ir) { var g = el('button', 'go', m.irL + ' →'); g.onclick = function () { ir(m.ir); }; s.appendChild(g); }
+      w.appendChild(s);
+    }
+    if (m.s && m.s.length) {
+      var f = el('div', 'follow');
+      m.s.forEach(function (q) { var b = el('button', null, q); b.onclick = function () { enviar(q); }; f.appendChild(b); });
+      w.appendChild(f);
+    }
+    c.appendChild(w);
+  });
+  if (pensando) c.appendChild(el('div', 'thinking', '<span class="avatar"><img src="assets/isotipo-qroo.png" alt=""><span class="ping"></span></span><span>consultando el observatorio…</span>'));
+  c.scrollTop = c.scrollHeight;
+}
+function sync() { $('#send').classList.toggle('on', $('#q').value.trim().length > 0); }
+$('#q').addEventListener('input', sync);
+$('#q').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); enviar($('#q').value); } });
+$('#send').onclick = function () { enviar($('#q').value); };
+$('#clear').onclick = function () { clearTimeout(timer); msgs = []; pensando = false; $('#q').value = ''; sync(); pintarConv(); };
+DATA.sugerencias.forEach(function (q) {
+  var b = el('button', null, q); b.onclick = function () { enviar(q); }; $('#sugs').appendChild(b);
+});
+
+/* ═══════════════ filtro de periodo ═══════════════ */
+var periodo = DATA.periodos[0];
+var CON_FILTRO = { panorama: 1, produccion: 1, empleo: 1, municipios: 1 };
+
+function pintarOpciones() {
+  var c = $('#pop-anios'); c.innerHTML = '';
+  DATA.periodos.forEach(function (p) {
+    var b = el('button', null, '<span>' + p.label + '</span><small>' + p.nota + '</small>');
+    b.setAttribute('aria-pressed', String(p.id === periodo.id));
+    b.onclick = function () { periodo = p; cerrarPop(); aplicarPeriodo(); };
+    c.appendChild(b);
+  });
+}
+function abrirPop() {
+  pintarOpciones();
+  $('#pop-filtro').hidden = false; $('#scrim').hidden = false;
+  $('#btn-filtro').setAttribute('aria-expanded', 'true');
+}
+function cerrarPop() {
+  $('#pop-filtro').hidden = true; $('#scrim').hidden = true;
+  $('#btn-filtro').setAttribute('aria-expanded', 'false');
+}
+$('#btn-filtro').onclick = function () { $('#pop-filtro').hidden ? abrirPop() : cerrarPop(); };
+$('#scrim').onclick = cerrarPop;
+$('#brief-go').onclick = function () { ir('preguntar'); };
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarPop(); });
+
+function pintarPanorama() {
+  var p = periodo, c = $('#kpis-panorama'); c.innerHTML = '';
+  var pos = p.varia >= 0;
+  c.innerHTML =
+    '<div class="hero"><div class="kpi row" style="position:relative">'
+      + '<div class="n">$' + p.pib.toLocaleString('en-US') + '<small> MDP</small></div>'
+      + (p.id === '2023' ? '<span class="tag">1º nacional</span>' : '<span class="tag">' + p.nota + '</span>')
+    + '</div><div class="k">PIB estatal · ' + p.label + '</div></div>'
+    + '<div class="card kpi"><div class="n" style="color:' + (pos ? 'var(--verde)' : 'var(--rojo)') + '">'
+      + (pos ? '+' : '−') + Math.abs(p.varia) + '<small>%</small></div>'
+      + '<div class="k">Crecimiento ' + p.label + (p.id === '2023' ? ' · 1º nacional' : '') + '</div></div>'
+    + '<div class="card kpi"><div class="row"><div class="n">' + p.nac + '<small>%</small></div></div>'
+      + '<div class="k">Aportación al PIB nacional</div></div>'
+    + '<div class="card kpi"><div class="row"><div class="n">' + p.ocup + '</div>'
+      + '<span class="pill-up" style="' + (p.dOcup.indexOf('▼') === 0 ? 'color:var(--rojo);background:rgba(166,59,51,.12)' : '') + '">' + p.dOcup + '</span></div>'
+      + '<div class="k">Personas ocupadas · ' + p.ocupCorte + '</div></div>';
+}
+
+function pintarEmpleoPeriodo() {
+  var p = periodo, c = $('#kpis-empleo'); c.innerHTML = '';
+  [[p.ocup, '', 'Personas ocupadas · ' + p.ocupCorte, p.dOcup],
+   [p.des, '%', 'Tasa de desocupación', p.dDes],
+   [p.inf, '%', 'Ocupación informal', p.dInf],
+   [p.pea, 'M', 'Población económicamente activa', '']].forEach(function (k) {
+    var malo = k[3].indexOf('▲') === 0 && (k[2].indexOf('desocup') > 0 || k[2].indexOf('informal') > 0);
+    c.appendChild(el('div', 'card kpi',
+      '<div class="row"><div class="n">' + k[0] + (k[1] ? '<small>' + k[1] + '</small>' : '') + '</div>'
+      + (k[3] ? '<span class="pill-up" style="' + (malo || k[3].indexOf('▼') === 0 && k[2].indexOf('ocupadas') > 0 ? 'color:var(--rojo);background:rgba(166,59,51,.12)' : '') + '">' + k[3] + '</span>' : '')
+      + '</div><div class="k">' + k[2] + '</div>'));
+  });
+}
+
+function aplicarPeriodo() {
+  var p = periodo;
+  $('#filtro-label').textContent = p.label;
+  $('#brief-per').textContent = p.label;
+  $('#brief-txt').innerHTML = p.brief;
+  pintarPanorama();
+  pintarEmpleoPeriodo();
+  barras($('#composicion'), DATA.composicion.map(function (c, i) { return [c[0], p.comp[i], c[2]]; }), 100);
+  barras($('#subsectores'), DATA.subsectores.map(function (s, i) { return [s[0], p.sub[i]]; }), 26);
+  $('#comp-anio').textContent = p.label;
+  $('#sub-anio').textContent = '% del PIB · ' + p.label;
+  $('#mun-corte').textContent = p.munCorte;
+  pintarMunicipios();
+  if (munSel) seleccionar(munSel, true);
+  // resalta en la tabla el año seleccionado
+  document.querySelectorAll('#tabla-serie .tr.click').forEach(function (r) {
+    r.classList.toggle('sel', (r.dataset.anio || '').indexOf(p.label) === 0);
+  });
+  pintarOpciones();
+}
+
+function sincronizarFiltro() {
+  $('#filtro').classList.toggle('off', !CON_FILTRO[tab]);
+  cerrarPop();
+}
+
+/* ═══════════════ descarga de datos (CSV) ═══════════════ */
+$('#descargar').onclick = function () {
+  var filas = [['anio', 'pib_mdp_constantes_2018']].concat(DATA.pib.map(function (p) { return [p[0], p[1]]; }));
+  var csv = filas.map(function (r) { return r.join(','); }).join('\n');
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'observatorio-qroo-pib.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+/* ═══════════════ arranque ═══════════════ */
+pintarNav();
+chartPib();
+chartVar();
+chartEmp();
+pintarFicha();
+pintarSerie();
+pintarFuentes();
+pintarMunicipios();
+aplicarPeriodo();
+ir('panorama');
+</script>
+</body>
+</html>
