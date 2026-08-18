@@ -1,0 +1,9 @@
+# Lo que NO debe entrar a la imagen (el sitio solo necesita HTML y assets).
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+README.md
+infra/
+**/.DS_Store
