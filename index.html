@@ -136,7 +136,7 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   box-shadow:0 22px 44px -20px rgba(159,34,65,.6);}
 .hero::after{content:"";position:absolute;top:-55%;right:-25%;width:80%;height:130%;
   background:radial-gradient(circle,rgba(255,255,255,.25),transparent 62%);pointer-events:none;}
-.hero .n{position:relative;font-size:34px;font-weight:600;letter-spacing:-.025em;line-height:1;white-space:nowrap;}
+.hero .n{position:relative;font-size:clamp(26px,1.6vw + 12px,34px);font-weight:600;letter-spacing:-.025em;line-height:1;white-space:nowrap;}
 .hero .n small{font-size:.5em;font-weight:500;color:rgba(255,255,255,.75);}
 .hero .k{position:relative;font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-top:13px;}
 .hero .tag{font-size:12.5px;font-weight:600;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 11px;white-space:nowrap;}
@@ -217,7 +217,8 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
 /* ── Preguntar ── */
 .ask{position:relative;min-height:min(640px,72vh);display:flex;flex-direction:column;}
 .ask .body{position:relative;flex:1;min-height:0;}
-.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;justify-content:safe center;overflow-y:auto;padding:12px 32px;
   transition:opacity .32s ease,transform .46s cubic-bezier(.34,1.2,.64,1);}
 .empty.off{opacity:0;transform:translateY(-18px) scale(.97);pointer-events:none;}
 .orb{position:relative;width:180px;height:180px;display:flex;align-items:center;justify-content:center;}
@@ -240,7 +241,8 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
 .sugs button:hover{background:#fff;box-shadow:0 12px 28px -18px rgba(20,16,8,.4);}
 .sugs button:active{transform:scale(.97);}
 .conv{position:absolute;inset:0;display:flex;flex-direction:column;gap:24px;overflow-y:auto;padding:18px 6px 6px;
-  justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .32s ease .06s;}
+  opacity:0;pointer-events:none;transition:opacity .32s ease .06s;}
+.conv > :first-child{margin-top:auto;}
 .conv.on{opacity:1;pointer-events:auto;}
 .msg-u{align-self:flex-end;max-width:74%;background:rgba(159,34,65,.1);border:1px solid rgba(159,34,65,.14);
   border-radius:20px 20px 6px 20px;padding:13px 18px;font-size:15px;line-height:1.5;
@@ -356,7 +358,8 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
 @media (max-width:900px){
   .side{display:none;}
   .head{padding:calc(20px + env(safe-area-inset-top)) 18px 12px;align-items:center;}
-  .head h1{font-size:20px;}
+  .head h1{font-size:20px;white-space:normal;line-height:1.25;}
+  .head .right{margin-left:auto;}
   .head .eyebrow{font-size:10px;letter-spacing:.14em;}
   .head .sub,.btn-dl span{display:none;}
   .btn-dl{padding:11px;border-radius:50%;}
@@ -367,7 +370,7 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   .head .brand{display:flex;align-items:center;gap:11px;}
   .head .brand img{width:36px;height:36px;object-fit:contain;padding:6px;border-radius:12px;
     background:rgba(255,255,255,.78);border:1px solid rgba(159,34,65,.14);box-sizing:content-box;}
-  main{padding:0 16px calc(124px + env(safe-area-inset-bottom));gap:14px;}
+  main{padding:0 16px 24px;gap:14px;}
   .view.on{gap:14px;}
   .card{padding:18px;border-radius:19px;}
   .brief{flex-direction:column;gap:14px;padding:20px 18px;border-radius:19px;}
@@ -376,15 +379,15 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   .brief p{font-size:16px;}
   .card h2{font-size:13.5px;}
   .card h2 small{display:block;margin:4px 0 0;font-size:11.5px;}
-  .hero{padding:22px;border-radius:22px;}
-  .hero .n{font-size:36px;}
+  .hero{border-radius:19px;}
   .kpis{grid-template-columns:1fr 1fr;gap:12px;}
   .kpi{padding:15px 16px;}
   .kpi .n{font-size:22px;}
   .kpi .k{font-size:10px;letter-spacing:.12em;margin-top:9px;line-height:1.35;}
+  .hero .n{font-size:clamp(20px,6.4vw,26px);}
+  .hero .tag{font-size:11px;padding:3px 9px;}
   .duo{grid-template-columns:1fr;}
   .bar-row .t{font-size:13px;}
-  .chart svg{height:180px;}
   .tip{min-width:120px;padding:9px 13px;top:-12px;}
   .tip .v{font-size:15px;}
   .tip .d{font-size:11px;}
@@ -403,7 +406,8 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   .fuentes .tr b{grid-column:1 / -1;}
   .serie .tr span.c::before,.fuentes .tr span.c::before{content:attr(data-k) ": ";color:var(--gris-2);font-size:11px;
     font-weight:600;letter-spacing:.08em;text-transform:uppercase;}
-  .ask{min-height:calc(100vh - 260px);}
+  .ask{min-height:calc(100vh - 330px);min-height:calc(100dvh - 330px);}
+  .empty{position:relative;inset:auto;overflow:visible;padding:8px 12px 20px;}
   .orb{width:150px;height:150px;}
   .orb .glass{width:110px;height:110px;}
   .orb .glass img{width:66px;height:66px;}
@@ -415,7 +419,7 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   .msg-a{max-width:100%;}
   .msg-a p{font-size:14px;}
   .chips,.src,.follow{margin-left:0;}
-  .ask input{height:50px;font-size:14.5px;padding:0 20px;}
+  .ask input{height:50px;font-size:16px;padding:0 20px;}
   .icon-btn{width:50px;height:50px;}
   .disclaimer{font-size:11.5px;}
   footer{flex-direction:column;align-items:flex-start;gap:6px;font-size:11.5px;
@@ -795,20 +799,26 @@ $('#seg').addEventListener('click', function (e) {
 });
 
 /* ═══════════════ gráfica del PIB (interactiva) ═══════════════ */
+/* En móvil las gráficas se dibujan en un viewBox más angosto para que
+   la tipografía interna quede legible al escalar, y con height:auto
+   para que la altura siga la proporción del viewBox. */
+var mqMovil = window.matchMedia('(max-width:900px)');
 var pinIdx = null;
 function chartPib() {
   var box = $('#chart-pib');
   box.innerHTML = '';
   if (gran !== 'anual') { chartItaee(box); return; }
 
-  var W = 1000, H = 380, L = 50, R = 975, T = 40, B = 340;
+  var MOB = mqMovil.matches;
+  var W = MOB ? 480 : 1000, H = 380, L = MOB ? 36 : 50, R = W - 25, T = 40, B = 340;
+  var fz = MOB ? 15 : 12.5;
   var vals = DATA.pib.map(function (p) { return p[1]; });
   var min = Math.min.apply(null, vals) * 0.94, max = Math.max.apply(null, vals) * 1.02;
   var X = function (i) { return L + i * (R - L) / (DATA.pib.length - 1); };
   var Y = function (v) { return B - (v - min) / (max - min) * (B - T); };
   var line = DATA.pib.map(function (p, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(p[1]).toFixed(1); }).join(' ');
 
-  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Serie del PIB estatal 2003-2024">'
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="height:auto;aspect-ratio:' + W + '/' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Serie del PIB estatal 2003-2024">'
     + '<defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7A1B33"/><stop offset="0.72" stop-color="#9F2241"/><stop offset="1" stop-color="#E0824A"/></linearGradient>'
     + '<linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(159,34,65,0.18)"/><stop offset="0.55" stop-color="rgba(159,34,65,0.06)"/><stop offset="1" stop-color="rgba(159,34,65,0)"/></linearGradient></defs>';
   [B, 240, 140, T].forEach(function (y, i) {
@@ -819,7 +829,7 @@ function chartPib() {
   svg += '<circle cx="' + X(20).toFixed(1) + '" cy="' + Y(403785).toFixed(1) + '" r="6" fill="#9F2241" stroke="#fff" stroke-width="2.5"/>';
   svg += '<circle cx="' + X(17).toFixed(1) + '" cy="' + Y(297400).toFixed(1) + '" r="4.5" fill="#fff" stroke="#6E6252" stroke-width="2"/>';
   svg += '<circle id="dot" cx="-50" cy="-50" r="6.5" fill="#9F2241" stroke="#fff" stroke-width="2.6" opacity="0"/>';
-  svg += '<text x="' + X(17).toFixed(1) + '" y="' + (Y(297400) + 26).toFixed(1) + '" text-anchor="middle" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">2020 · −21.8%</text>';
+  svg += '<text x="' + X(17).toFixed(1) + '" y="' + (Y(297400) + 26).toFixed(1) + '" text-anchor="middle" font-size="' + fz + '" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">2020 · −21.8%</text>';
   svg += '</svg>';
 
   box.innerHTML = '<div class="cross" id="cross" style="height:300px"></div>'
@@ -839,6 +849,7 @@ function chartPib() {
     var vr = prev ? (p[1] - prev[1]) / prev[1] * 100 : null;
     var xPct = X(i) / W * 100;
     var cross = $('#cross', box), tip = $('#tip', box), dot = $('#dot', box);
+    cross.style.height = svgEl.clientHeight + 'px';
     cross.style.left = xPct + '%'; cross.style.opacity = 1;
     tip.style.left = Math.min(88, Math.max(12, xPct)) + '%'; tip.style.opacity = 1;
     $('.y', tip).textContent = p[0] + (p[0] === 2024 ? ' · preliminar' : '');
@@ -860,52 +871,60 @@ function chartPib() {
 }
 
 function chartItaee(box) {
-  var W = 1000, H = 380, base = 200, ancho = 46, paso = 77;
-  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="height:300px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ITAEE variación anual por trimestre">'
+  var MOB = mqMovil.matches;
+  var W = MOB ? 480 : 1000, H = 380, base = 200, L = MOB ? 16 : 50, R = W - 25;
+  var n = DATA.itaee.length, paso = (R - L - 20) / n, ancho = paso * 0.6;
+  var fz = MOB ? 14 : 12.5;
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="height:auto;aspect-ratio:' + W + '/' + H + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="ITAEE variación anual por trimestre">'
     + '<defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B23B58"/><stop offset="1" stop-color="#7A1B33"/></linearGradient></defs>'
-    + '<line x1="50" y1="' + base + '" x2="975" y2="' + base + '" stroke="rgba(11,11,12,.18)" stroke-width="1"/>';
+    + '<line x1="' + L + '" y1="' + base + '" x2="' + R + '" y2="' + base + '" stroke="rgba(11,11,12,.18)" stroke-width="1"/>';
   DATA.itaee.forEach(function (v, i) {
-    var h = Math.abs(v) * 8, x = 65 + i * paso, ult = i === 7;
+    var h = Math.abs(v) * 8, x = L + 10 + i * paso, ult = i === n - 1;
     var y = v >= 0 ? base - h : base;
-    var fill = v >= 0 ? (ult ? 'url(#gb)' : 'rgba(159,34,65,.28)') : 'rgba(11,11,12,.18)';
-    svg += '<rect x="' + x + '" y="' + y.toFixed(1) + '" width="' + ancho + '" height="' + Math.max(h, 4).toFixed(1) + '" rx="6" fill="' + fill + '"/>';
-    if (ult) svg += '<text x="' + (x + ancho / 2) + '" y="' + (y - 12).toFixed(1) + '" text-anchor="middle" font-size="14" font-weight="600" fill="#9F2241" font-family="Schibsted Grotesk, sans-serif">+' + v + '%</text>';
+    var fill = ult ? 'url(#gb)' : (v >= 0 ? 'rgba(159,34,65,.28)' : 'rgba(11,11,12,.18)');
+    svg += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + ancho.toFixed(1) + '" height="' + Math.max(h, 4).toFixed(1) + '" rx="6" fill="' + fill + '"/>';
+    if (ult) svg += '<text x="' + (x + ancho / 2).toFixed(1) + '" y="' + (v >= 0 ? y - 12 : base + h + 24).toFixed(1) + '" text-anchor="middle" font-size="' + (MOB ? 16 : 14) + '" font-weight="600" fill="#9F2241" font-family="Schibsted Grotesk, sans-serif">' + (v >= 0 ? '+' : '−') + Math.abs(v) + '%</text>';
   });
   ['2022', '2023', '2024'].forEach(function (a, i) {
-    svg += '<text x="' + (65 + (i * 4 + 1.5) * paso) + '" y="' + (base + 62) + '" text-anchor="middle" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">' + a + '</text>';
+    svg += '<text x="' + (L + 10 + (i * 4 + 2) * paso).toFixed(1) + '" y="' + (base + 62) + '" text-anchor="middle" font-size="' + fz + '" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">' + a + '</text>';
   });
-  svg += '<text x="512" y="' + (base + 100) + '" text-anchor="middle" font-size="12.5" fill="#6E6252" font-family="Schibsted Grotesk, sans-serif">Variación anual del ITAEE por trimestre · 2024 preliminar</text></svg>';
+  svg += '<text x="' + (W / 2) + '" y="' + (base + 100) + '" text-anchor="middle" font-size="' + fz + '" fill="#6E6252" font-family="Schibsted Grotesk, sans-serif">Variación anual del ITAEE por trimestre · 2024 preliminar</text></svg>';
   box.innerHTML = svg;
 }
 
 /* ═══════════════ producción y empleo ═══════════════ */
 function chartVar() {
-  var W = 1000, base = 150, ancho = 60, paso = 92;
-  var svg = '<svg viewBox="0 0 ' + W + ' 300" style="height:250px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Variación anual del PIB 2015-2024">'
+  var MOB = mqMovil.matches;
+  var W = MOB ? 480 : 1000, base = 150, L = MOB ? 16 : 50, R = W - 25;
+  var n = DATA.variacion.length, paso = (R - L - 16) / n, ancho = paso * 0.65;
+  var fz = MOB ? 14 : 12.5;
+  var svg = '<svg viewBox="0 0 ' + W + ' 300" style="height:auto;aspect-ratio:' + W + '/300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Variación anual del PIB 2015-2024">'
     + '<defs><linearGradient id="gv" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B23B58"/><stop offset="1" stop-color="#7A1B33"/></linearGradient></defs>'
-    + '<line x1="50" y1="' + base + '" x2="975" y2="' + base + '" stroke="rgba(11,11,12,.18)" stroke-width="1"/>';
+    + '<line x1="' + L + '" y1="' + base + '" x2="' + R + '" y2="' + base + '" stroke="rgba(11,11,12,.18)" stroke-width="1"/>';
   DATA.variacion.forEach(function (d, i) {
-    var v = d[1], h = Math.abs(v) * 5, x = 62 + i * paso, best = v === 13.2;
+    var v = d[1], h = Math.abs(v) * 5, x = L + 8 + i * paso, best = v === 13.2;
     var y = v >= 0 ? base - h : base;
     var fill = v >= 0 ? (best ? 'url(#gv)' : 'rgba(159,34,65,.26)') : 'rgba(11,11,12,.16)';
-    svg += '<rect x="' + x + '" y="' + y.toFixed(1) + '" width="' + ancho + '" height="' + Math.max(h, 4).toFixed(1) + '" rx="6" fill="' + fill + '"/>';
-    if (best) svg += '<text x="' + (x + ancho / 2) + '" y="' + (y - 12) + '" text-anchor="middle" font-size="14.5" font-weight="600" fill="#9F2241" font-family="Schibsted Grotesk, sans-serif">+13.2%</text>';
-    if (v === -21.8) svg += '<text x="' + (x + ancho / 2) + '" y="' + (base + h + 26) + '" text-anchor="middle" font-size="12.5" fill="#6E6252" font-family="Schibsted Grotesk, sans-serif">−21.8% · 2020</text>';
+    svg += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + ancho.toFixed(1) + '" height="' + Math.max(h, 4).toFixed(1) + '" rx="6" fill="' + fill + '"/>';
+    if (best) svg += '<text x="' + (x + ancho / 2).toFixed(1) + '" y="' + (y - 12) + '" text-anchor="middle" font-size="' + (MOB ? 16 : 14.5) + '" font-weight="600" fill="#9F2241" font-family="Schibsted Grotesk, sans-serif">+13.2%</text>';
+    if (v === -21.8) svg += '<text x="' + (x + ancho / 2).toFixed(1) + '" y="' + (base + h + 26) + '" text-anchor="middle" font-size="' + fz + '" fill="#6E6252" font-family="Schibsted Grotesk, sans-serif">−21.8% · 2020</text>';
   });
   [[0, '2015'], [4, '2019'], [8, '2023'], [9, '2024']].forEach(function (a) {
-    svg += '<text x="' + (62 + a[0] * paso + ancho / 2) + '" y="' + (base + (a[0] === 9 ? 42 : 22)) + '" text-anchor="middle" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">' + a[1] + '</text>';
+    svg += '<text x="' + (L + 8 + a[0] * paso + ancho / 2).toFixed(1) + '" y="' + (base + (a[0] === 9 ? 42 : 22)) + '" text-anchor="middle" font-size="' + fz + '" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">' + a[1] + '</text>';
   });
   svg += '</svg>';
   $('#chart-var').innerHTML = svg;
 }
 
 function chartEmp() {
-  var W = 1000, T = 40, B = 280, L = 50, R = 975;
+  var MOB = mqMovil.matches;
+  var W = MOB ? 480 : 1000, T = 40, B = 280, L = MOB ? 36 : 50, R = W - 25;
+  var fz = MOB ? 15 : 12.5;
   var v = DATA.ocupados, min = Math.min.apply(null, v) * 0.96, max = Math.max.apply(null, v) * 1.02;
   var X = function (i) { return L + i * (R - L) / (v.length - 1); };
   var Y = function (x) { return B - (x - min) / (max - min) * (B - T); };
   var line = v.map(function (x, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ',' + Y(x).toFixed(1); }).join(' ');
-  var svg = '<svg viewBox="0 0 ' + W + ' 320" style="height:260px" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Personas ocupadas 2019-2024">'
+  var svg = '<svg viewBox="0 0 ' + W + ' 320" style="height:auto;aspect-ratio:' + W + '/320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Personas ocupadas 2019-2024">'
     + '<defs><linearGradient id="ge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(159,34,65,0.16)"/><stop offset="1" stop-color="rgba(159,34,65,0)"/></linearGradient></defs>'
     + '<line x1="' + L + '" y1="' + B + '" x2="' + R + '" y2="' + B + '" stroke="rgba(11,11,12,.12)"/>'
     + '<line x1="' + L + '" y1="180" x2="' + R + '" y2="180" stroke="rgba(11,11,12,.05)"/>'
@@ -914,7 +933,7 @@ function chartEmp() {
     + '<path d="' + line + '" fill="none" stroke="#9F2241" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="2600" style="animation:draw 1.5s cubic-bezier(.22,1,.36,1) both"/>'
     + '<circle cx="' + X(v.length - 1).toFixed(1) + '" cy="' + Y(v[v.length - 1]).toFixed(1) + '" r="6" fill="#9F2241" stroke="#fff" stroke-width="2.5"/>'
     + '<circle cx="' + X(2).toFixed(1) + '" cy="' + Y(v[2]).toFixed(1) + '" r="4.5" fill="#fff" stroke="#6E6252" stroke-width="2"/>'
-    + '<text x="' + (X(2) + 40).toFixed(1) + '" y="' + (Y(v[2]) + 24).toFixed(1) + '" font-size="12.5" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">2020 T2 · caída por pandemia</text></svg>';
+    + '<text x="' + (X(2) + (MOB ? 16 : 40)).toFixed(1) + '" y="' + (Y(v[2]) + 24).toFixed(1) + '" font-size="' + fz + '" fill="#5E6168" font-family="Schibsted Grotesk, sans-serif">2020 T2 · caída por pandemia</text></svg>';
   $('#chart-emp').innerHTML = svg + '<div class="axis"><span>2019</span><span>2022</span><span>2024 T3</span></div>';
 }
 
@@ -1111,7 +1130,7 @@ function pintarPanorama() {
   var p = periodo, c = $('#kpis-panorama'); c.innerHTML = '';
   var pos = p.varia >= 0;
   c.innerHTML =
-    '<div class="hero"><div class="kpi row" style="position:relative">'
+    '<div class="hero kpi"><div class="row" style="position:relative">'
       + '<div class="n">$' + p.pib.toLocaleString('en-US') + '<small> MDP</small></div>'
       + (p.id === '2023' ? '<span class="tag">1º nacional</span>' : '<span class="tag">' + p.nota + '</span>')
     + '</div><div class="k">PIB estatal · ' + p.label + '</div></div>'
@@ -1177,6 +1196,10 @@ $('#descargar').onclick = function () {
 };
 
 /* ═══════════════ arranque ═══════════════ */
+function redibujarCharts() { chartPib(); chartVar(); chartEmp(); }
+if (mqMovil.addEventListener) mqMovil.addEventListener('change', redibujarCharts);
+else if (mqMovil.addListener) mqMovil.addListener(redibujarCharts);
+
 pintarNav();
 chartPib();
 chartVar();
