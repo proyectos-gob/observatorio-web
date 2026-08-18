@@ -47,26 +47,24 @@ certificado en cuanto el contenedor levante.
 
 ---
 
-## 1. Token de GitHub (el repo es privado)
+## 1. Credenciales — ninguna ✅
 
-El VPS necesita credenciales para clonar `proyectos-gob/observatorio-web`. Usa un
-**fine-grained PAT de solo lectura**.
+El repo `proyectos-gob/observatorio-web` es **público** desde el **2026-08-18**, así que
+`git clone` y `git pull` funcionan **sin token**. No hay ningún secreto guardado en el
+VPS para este proyecto y no hay nada que rotar.
 
-> ⚠️ Los fine-grained PAT se crean en tu **cuenta personal**, NO en la organización. El
-> *Developer settings* de la org solo tiene OAuth Apps / GitHub Apps / Publisher
-> Verification. Ruta correcta:
-> **https://github.com/settings/personal-access-tokens/new**
-
-1. **Resource owner:** `proyectos-gob` (este paso lo convierte en token de la org).
-2. **Repository access:** *Only select repositories* → **`observatorio-web`**.
-3. **Permissions → Repository permissions → Contents: Read-only**. Con eso basta.
-4. **Expiration:** ponle fecha (p. ej. 90 días) y agenda la rotación.
-5. Nómbralo `portainer-vps-satq · observatorio-web · RO` o similar: quién lo usa, a qué
-   accede, con qué permiso.
-
-> Si la org exige aprobación, el token queda en **Pending** y no funciona hasta
-> aprobarlo en Org → *Settings → Personal access tokens → Pending requests*. Síntoma
-> típico: `git clone` falla con un error de autenticación poco claro.
+> **Por qué se hizo público:** el sitio se sirve abiertamente a los ciudadanos y el repo
+> solo contiene 2 HTML, 2 PNG y esta documentación — sin secretos ni PII. Se intentó
+> primero con un fine-grained PAT, pero `git clone` devolvía **403**: la organización
+> exige aprobación del owner para ese tipo de tokens. Hacerlo público eliminó el
+> problema de raíz en vez de administrar un token que hay que renovar cada 90 días.
+>
+> **Si algún día vuelve a ser privado:** hay que crear un fine-grained PAT desde la
+> **cuenta personal** (https://github.com/settings/personal-access-tokens/new — NO desde
+> el *Developer settings* de la org, que solo tiene OAuth/GitHub Apps), con *Resource
+> owner* = `proyectos-gob`, *Contents: Read-only*, y **aprobarlo** en Org → *Settings →
+> Third-party Access → Personal access tokens → Pending requests*. Sin esa aprobación el
+> clone falla con 403.
 
 ---
 
@@ -83,23 +81,18 @@ editor visual del panel, **bórralo** — chocaría con el nombre del proyecto c
 docker inspect satq-wizard \
   --format '{{index .Config.Labels "com.docker.compose.project.working_dir"}}'
 
-# 2) Clona el repo (sustituye TU_USUARIO y TU_PAT)
+# 2) Clona el repo (público: sin credenciales)
 mkdir -p /opt && cd /opt
-git clone https://TU_USUARIO:TU_PAT@github.com/proyectos-gob/observatorio-web.git
+git clone https://github.com/proyectos-gob/observatorio-web.git
 cd /opt/observatorio-web
 
-# 3) Restringe permisos: el PAT queda guardado en .git/config
-chmod 700 /opt/observatorio-web
-
-# 4) Construye y levanta
+# 3) Construye y levanta
 docker compose up -d --build
 ```
 
-> **Sobre el PAT en `.git/config`:** queda en texto plano en el servidor. Es un token
-> *read-only* limitado a un solo repo cuyo contenido es un sitio público, así que el
-> riesgo es bajo — pero **hay que rotarlo** cuando expire o el `git pull` dejará de
-> funcionar. Alternativa que elimina el secreto por completo: hacer **público** el repo
-> (el sitio va a ser público de todos modos) y clonar sin credenciales.
+> **Convención de rutas:** el wizard vive en `/opt/satq-wizard` (verificado con
+> `docker inspect satq-wizard --format '{{index .Config.Labels "com.docker.compose.project.working_dir"}}'`),
+> por eso este va en `/opt/observatorio-web`. Manténlo así.
 
 ---
 
@@ -181,3 +174,22 @@ Se construyó y corrió la imagen en la Mac antes de tocar el VPS:
 | Healthcheck de Docker | `healthy` |
 | Contenido de la imagen | solo HTML + assets; sin `.git`, README ni compose |
 | `docker compose config` | sintaxis válida |
+
+---
+
+## Verificado EN PRODUCCIÓN (2026-08-18, tras el primer deploy)
+
+Comprobado desde fuera del VPS contra `https://observatorio.srv1682335.hstgr.cloud`:
+
+| Prueba | Resultado |
+|---|---|
+| `GET /` | 200 · `text/html` · 81 071 bytes · `nginx/1.27.5` |
+| `GET /mapa-qroo.html` | 200 · 8 675 bytes |
+| `GET /assets/logo-qroo.png` | 200 · `image/png` · 135 135 bytes |
+| `GET /healthz` | 200 |
+| HTTP → HTTPS | **308** Permanent Redirect |
+| Certificado TLS | válido (Let's Encrypt vía Traefik; `curl` sin `-k` pasa) |
+| `Cache-Control` del HTML | `no-cache, must-revalidate` |
+| HSTS | `max-age=315360000; includeSubDomains; preload` |
+| `X-Content-Type-Options` | `nosniff` |
+| `X-XSS-Protection` | `1; mode=block` |
