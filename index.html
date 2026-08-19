@@ -286,23 +286,39 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   box-shadow:0 14px 30px -14px rgba(159,34,65,.7);}
 .disclaimer{margin:14px 0 0;text-align:center;font-size:12.5px;color:var(--gris);}
 
-/* ── Lectura ejecutiva ── */
-.brief{position:relative;overflow:hidden;display:flex;align-items:flex-start;gap:20px;
+/* ── Lectura ejecutiva (colapsable) ── */
+.brief{position:relative;overflow:hidden;display:flex;flex-direction:column;
   background:linear-gradient(112deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.55) 46%,rgba(255,251,244,.62) 100%);
   backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);
-  border:1px solid var(--vidrio-borde);border-radius:var(--radio);padding:24px 30px 24px 26px;
+  border:1px solid var(--vidrio-borde);border-radius:var(--radio);padding:0;
   box-shadow:var(--sombra),inset 0 1px 0 rgba(255,255,255,.7);}
+.brief-head{position:relative;display:flex;align-items:center;gap:16px;width:100%;
+  border:none;background:transparent;padding:15px 20px;text-align:left;cursor:pointer;}
+.brief-head .eyebrow{flex:1;min-width:0;}
+.brief-cta{display:inline-flex;align-items:center;justify-content:center;color:var(--grafito);
+  background:rgba(255,255,255,.8);border:1px solid rgba(11,11,12,.1);border-radius:50%;padding:9px;
+  transition:background .18s,box-shadow .18s;}
+.brief-head:hover .brief-cta{background:#fff;box-shadow:0 12px 28px -20px rgba(20,16,8,.5);}
+.brief-head:active .brief-cta{transform:scale(.97);}
+.brief-cta svg{flex:none;transition:transform .34s cubic-bezier(.34,1.2,.64,1);}
+.brief.open .brief-cta svg{transform:rotate(180deg);}
+.brief-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .42s cubic-bezier(.22,1,.36,1);}
+.brief.open .brief-body{grid-template-rows:1fr;}
+.brief-body > div{overflow:hidden;min-height:0;visibility:hidden;transition:visibility .42s;}
+.brief.open .brief-body > div{visibility:visible;}
 .brief::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--guinda) 18%,var(--ambar) 48%,var(--oro) 66%,transparent);
   opacity:.85;animation:shimmer 9s ease-in-out infinite;}
-.brief .mark{position:relative;flex:none;width:46px;height:46px;border-radius:50%;
+.brief .mark{position:relative;flex:none;width:40px;height:40px;border-radius:50%;
   display:inline-flex;align-items:center;justify-content:center;
   background:radial-gradient(130% 130% at 30% 22%,#fff 0%,rgba(255,255,255,.6) 44%,rgba(255,255,255,.25) 100%);
   border:1px solid rgba(159,34,65,.16);box-shadow:0 14px 30px -18px rgba(159,34,65,.5),inset 0 1px 6px rgba(255,255,255,.9);}
-.brief .mark img{width:26px;height:26px;object-fit:contain;}
+.brief .mark img{width:23px;height:23px;object-fit:contain;}
 .brief .mark::after{content:"";position:absolute;inset:-22%;border-radius:50%;
   background:radial-gradient(circle,rgba(159,34,65,.14),transparent 66%);animation:glow 6s ease-in-out infinite;}
-.brief .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:9px;}
+.brief .txt{display:flex;flex-direction:column;gap:9px;padding:2px 26px 22px 76px;
+  opacity:0;transform:translateY(-6px);transition:opacity .3s ease,transform .38s cubic-bezier(.22,1,.36,1);}
+.brief.open .txt{opacity:1;transform:none;transition-delay:.08s;}
 .brief .eyebrow{display:flex;align-items:center;gap:9px;font-size:10.5px;font-weight:600;
   letter-spacing:.16em;text-transform:uppercase;color:var(--gris);}
 .brief .eyebrow i{width:5px;height:5px;border-radius:50%;background:#1F8A5C;flex:none;}
@@ -373,9 +389,11 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
   main{padding:0 16px 24px;gap:14px;}
   .view.on{gap:14px;}
   .card{padding:18px;border-radius:19px;}
-  .brief{flex-direction:column;gap:14px;padding:20px 18px;border-radius:19px;}
-  .brief .mark{width:40px;height:40px;}
-  .brief .mark img{width:23px;height:23px;}
+  .brief{border-radius:19px;}
+  .brief-head{padding:12px 14px;gap:12px;}
+  .brief .mark{width:36px;height:36px;}
+  .brief .mark img{width:21px;height:21px;}
+  .brief .txt{padding:2px 16px 18px;}
   .brief p{font-size:16px;}
   .card h2{font-size:13.5px;}
   .card h2 small{display:block;margin:4px 0 0;font-size:11.5px;}
@@ -502,12 +520,21 @@ footer{position:relative;display:flex;justify-content:space-between;align-items:
     <main>
       <!-- PANORAMA -->
       <section class="view on" id="v-panorama">
-        <div class="brief">
-          <span class="mark"><img src="assets/isotipo-qroo.png" alt=""></span>
-          <div class="txt">
+        <div class="brief" id="brief">
+          <button class="brief-head" id="brief-toggle" aria-expanded="false" aria-controls="brief-body">
+            <span class="mark"><img src="assets/isotipo-qroo.png" alt=""></span>
             <span class="eyebrow"><i></i>Lectura ejecutiva · <span id="brief-per">2024</span></span>
-            <p id="brief-txt"></p>
-            <button class="go" id="brief-go">Preguntar al observatorio <span aria-hidden="true">→</span></button>
+            <span class="brief-cta">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+            </span>
+          </button>
+          <div class="brief-body" id="brief-body">
+            <div>
+              <div class="txt">
+                <p id="brief-txt"></p>
+                <button class="go" id="brief-go">Preguntar al observatorio <span aria-hidden="true">→</span></button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1124,6 +1151,10 @@ function cerrarPop() {
 $('#btn-filtro').onclick = function () { $('#pop-filtro').hidden ? abrirPop() : cerrarPop(); };
 $('#scrim').onclick = cerrarPop;
 $('#brief-go').onclick = function () { ir('preguntar'); };
+$('#brief-toggle').onclick = function () {
+  var abierto = $('#brief').classList.toggle('open');
+  this.setAttribute('aria-expanded', String(abierto));
+};
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') cerrarPop(); });
 
 function pintarPanorama() {
